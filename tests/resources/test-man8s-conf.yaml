@@ -1,0 +1,40 @@
+image: "docker.io/example/somecontainer:latest"
+mount:
+    datadir:
+        /data:
+            owner: [10001, 10001]
+            perm: "755"
+        /data2: {}
+        /data3:
+            source: /mnt/data/rustfs
+    logdir:
+        /log:
+            owner: [10001, 10001]
+    confdir:
+        /etc/example_config: {}
+        /etc/some_big: {}
+port:
+    - [9000, 9000]
+    - [9001, 9001]
+environment:
+    RUSTFS_ACCESS_KEY: rustfsadmin
+    RUSTFS_SECRET_KEY: rustfsadmin
+    RUSTFS_VOLUMES: "/data/rustfs0"
+    RUSTFS_ADDRESS: ":9000"
+    RUSTFS_CONSOLE_ENABLE: "true"
+    RUST_LOG: error
+    RUSTFS_OBS_LOG_DIRECTORY: "/log/"
+#firewall-allow:
+#	internet:
+#	    ipv4: false
+#	    ipv6: false
+#	srvnet:
+#        '*': false
+#        "pgsql1-relink.us.ygg": true
+#    bridge:
+#        '*': false
+#        'pgsql1-relink': true
+metadata:
+    create_time: 2025-01-31 09:30:00
+    last_update_time: 2025-01-31 09:30:00
+    author: "Neboer"

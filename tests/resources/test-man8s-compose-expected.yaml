@@ -1,0 +1,34 @@
+services:
+  test-rustfs:
+    image: "docker.io/rustfs/rustfs:latest"
+    container_name: "test-rustfs"
+    hostname: "test-rustfs"
+
+    networks:
+      - man8br
+
+    dns:
+      - "200:4697:f50c:f514:91c2:97c0:7073:9f81"
+
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+
+    volumes:
+      - "${MAN8S_DATADIR}/test-rustfs/data:/data"
+      - "${MAN8S_LOGDIR}/test-rustfs/log:/log"
+
+    environment:
+      RUSTFS_ACCESS_KEY: rustfsadmin
+      RUSTFS_SECRET_KEY: rustfsadmin
+      RUSTFS_VOLUMES: "/data/rustfs0"
+      RUSTFS_ADDRESS: ":9000"
+      RUSTFS_CONSOLE_ENABLE: true
+      RUST_LOG: error
+      RUSTFS_OBS_LOG_DIRECTORY: "/log/"
+
+    restart: unless-stopped
+    
+networks:
+  man8br:
+    external: true
