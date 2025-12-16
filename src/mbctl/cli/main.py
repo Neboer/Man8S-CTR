@@ -11,8 +11,8 @@ host = MBHost()
 
 
 @app.command()
-def create(container_name: str):
-    print(f"Creating container: {container_name}")
+def build(container_name: str):
+    print(f"Building container: {container_name}")
     host.build_new_container(container_name)
 
 

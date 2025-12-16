@@ -1,8 +1,9 @@
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Union, Sequence, assert_type
 from msgspec import Struct, field
 from datetime import datetime
 from msgspec import yaml
 from .MountType import MountType
+
 
 def is_valid_path(p: str) -> bool:
     # Simple validation to check if the path is absolute and does not contain illegal characters
@@ -20,6 +21,7 @@ class MBContainerMountPointConf(Struct, omit_defaults=True):
             raise ValueError(f"Invalid source path: {self.source}")
         if self.perm is None:
             self.perm = "644" if self.file else "755"
+
 
 class MBContainerMountConf(Struct, omit_defaults=True):
     data: dict[str, MBContainerMountPointConf] = {}
@@ -48,16 +50,23 @@ class MBContainerMetadataConf(Struct, kw_only=True):
     author: Optional[str] = ""
 
 
+type MBPortPiece = Union[Tuple[int, int], Tuple[int, int, bool]]
+
+
 class MBContainerConf(Struct, kw_only=True):
     image: str
     enable_ygg: bool = True
     autostart: bool = True
-    mount: MBContainerMountConf = field(
-        default_factory=MBContainerMountConf
-    )
-    port: list[Tuple[int, int]] = []
+    mount: MBContainerMountConf = field(default_factory=MBContainerMountConf)
+    # host_port, container_port, is_udp(optional)
+    # 通常，不建议设置is_udp为false，忽略它即可。
+    port: Sequence[tuple] = []
     environment: dict[str, str] = {}
     metadata: MBContainerMetadataConf = field(default_factory=MBContainerMetadataConf)
+
+    def __post_init__(self):
+        for p in self.port:
+            assert_type(p, MBPortPiece) # type: ignore
 
     @classmethod
     def from_yaml_file(cls, file_path: str) -> "MBContainerConf":
