@@ -1,1 +1,0 @@
-from .FullConf import convert_full_conf

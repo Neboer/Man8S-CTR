@@ -1,16 +1,18 @@
 image: "docker.io/example/somecontainer:latest"
+enable_ygg: true
+autostart: true
 mount:
-    datadir:
+    data:
         /data:
             owner: [10001, 10001]
             perm: "755"
         /data2: {}
         /data3:
             source: /mnt/data/rustfs
-    logdir:
+    log:
         /log:
             owner: [10001, 10001]
-    confdir:
+    conf:
         /etc/example_config: {}
         /etc/some_big: {}
 port:

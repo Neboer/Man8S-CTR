@@ -1,9 +1,8 @@
 from typing import Optional, Tuple
 from msgspec import Struct, field
 from datetime import datetime
-from os import path
-from mbctl.MBConfig import mb_config
-
+from msgspec import yaml
+from .MountType import MountType
 
 def is_valid_path(p: str) -> bool:
     # Simple validation to check if the path is absolute and does not contain illegal characters
@@ -12,45 +11,61 @@ def is_valid_path(p: str) -> bool:
 
 class MBContainerMountPointConf(Struct, omit_defaults=True):
     owner: list[int] = field(default_factory=lambda: [0, 0])  # [uid, gid]
-    perm: str = field(default="755")
     source: Optional[str] = None  # source path
+    file: bool = False  # whether it's a file mount point
+    perm: Optional[str] = None  # 需要在post init中根据file来设置默认权限
 
     def __post_init__(self):
         if self.source and not is_valid_path(self.source):
             raise ValueError(f"Invalid source path: {self.source}")
-
+        if self.perm is None:
+            self.perm = "644" if self.file else "755"
 
 class MBContainerMountConf(Struct, omit_defaults=True):
-    datadir: Optional[dict[str, MBContainerMountPointConf]] = {}
-    logdir: Optional[dict[str, MBContainerMountPointConf]] = {}
-    confdir: Optional[dict[str, MBContainerMountPointConf]] = {}
-    cachedir: Optional[dict[str, MBContainerMountPointConf]] = {}
-    plugindir: Optional[dict[str, MBContainerMountPointConf]] = {}
+    data: dict[str, MBContainerMountPointConf] = {}
+    log: dict[str, MBContainerMountPointConf] = {}
+    conf: dict[str, MBContainerMountPointConf] = {}
+    cache: dict[str, MBContainerMountPointConf] = {}
+    plugin: dict[str, MBContainerMountPointConf] = {}
 
     def __post_init__(self):
-        for mount_type in [
-            self.datadir,
-            self.logdir,
-            self.confdir,
-            self.cachedir,
-            self.plugindir,
+        for mount_group in [
+            self.data,
+            self.log,
+            self.conf,
+            self.cache,
+            self.plugin,
         ]:
-            if mount_type:
-                for mount_point, conf in mount_type.items():
+            if mount_group:
+                for mount_point, conf in mount_group.items():
                     if not is_valid_path(mount_point):
                         raise ValueError(f"Invalid mount point path: {mount_point}")
 
 
-
-class MBContainerMetadataConf(Struct):
-    create_time: datetime  # format "2025-05-12 05:25:31"
-    last_update_time: datetime
-    author: str  # Neboer
+class MBContainerMetadataConf(Struct, kw_only=True):
+    create_time: datetime = field(default_factory=datetime.now)
+    last_update_time: datetime = field(default_factory=datetime.now)
+    author: Optional[str] = ""
 
 
 class MBContainerConf(Struct, kw_only=True):
     image: str
-    mount: MBContainerMountConf
+    enable_ygg: bool = True
+    autostart: bool = True
+    mount: MBContainerMountConf = field(
+        default_factory=MBContainerMountConf
+    )
     port: list[Tuple[int, int]] = []
     environment: dict[str, str] = {}
-    metadata: MBContainerMetadataConf
+    metadata: MBContainerMetadataConf = field(default_factory=MBContainerMetadataConf)
+
+    @classmethod
+    def from_yaml_file(cls, file_path: str) -> "MBContainerConf":
+        with open(file_path, "r", encoding="utf-8") as f:
+            data = f.read()
+        return yaml.decode(data, type=MBContainerConf)
+
+    def to_yaml_file(self, file_path: str) -> None:
+        with open(file_path, "w", encoding="utf-8") as f:
+            yaml_data = yaml.encode(self)
+            f.write(yaml_data.decode("utf-8"))

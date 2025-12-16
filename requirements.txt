@@ -2,3 +2,4 @@ pyyaml
 python-on-whales
 msgspec
 typer
+prettytable

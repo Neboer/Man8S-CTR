@@ -2,7 +2,7 @@ services:
   test_container:
     image: docker.io/example/somecontainer:latest
     container_name: test_container
-    host_name: test_container
+    hostname: test_container
     networks:
     - man8yggbr
     ports:
@@ -11,12 +11,12 @@ services:
     - 9001:9001
     - '[::]:9001:9001'
     volumes:
-    - /var/lib/man8s/datadir/data:/data
-    - /var/lib/man8s/datadir/data2:/data2
-    - /var/lib/man8s/datadir/data3:/data3
-    - /var/lib/man8s/logdir/log:/log
-    - /var/lib/man8s/confdir/etc/example_config:/etc/example_config
-    - /var/lib/man8s/confdir/etc/some_big:/etc/some_big
+    - /var/lib/man8s/data/test_container/data:/data
+    - /var/lib/man8s/data/test_container/data2:/data2
+    - /var/lib/man8s/data/test_container/data3:/data3
+    - /var/lib/man8s/log/test_container/log:/log
+    - /var/lib/man8s/conf/test_container/etc/example_config:/etc/example_config
+    - /var/lib/man8s/conf/test_container/etc/some_big:/etc/some_big
     environment:
       RUSTFS_ACCESS_KEY: rustfsadmin
       RUSTFS_SECRET_KEY: rustfsadmin
@@ -25,6 +25,7 @@ services:
       RUSTFS_CONSOLE_ENABLE: 'true'
       RUST_LOG: error
       RUSTFS_OBS_LOG_DIRECTORY: /log/
+    restart: always
 networks:
   man8yggbr:
     external: true

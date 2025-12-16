@@ -1,16 +1,23 @@
-from mbctl.type_conv import convert_full_conf
 from mbctl.datatypes import ComposeConf, MBContainerConf
+from mbctl.MBContainer import MBContainer
 from msgspec import yaml
 from os import path
+from mbctl.MBHost.MBHost import MBHost
+from mbctl.cli.main import list
 
 current_dir = path.dirname(__file__)
 
 def test_conf_convert():
-    with open(path.join(current_dir, "resources/test-man8s-conf.yaml"), "r", encoding="utf8") as test_conf_file:
-        test_conf_content = test_conf_file.read()
+    test_mbcontainer_conf = MBContainerConf.from_yaml_file(path.join(current_dir, "resources/test-man8s-conf.yaml"))
 
-    test_mbcontainer_conf = yaml.decode(test_conf_content, type=MBContainerConf)
-    output_compose_conf = convert_full_conf(test_mbcontainer_conf, "test_container")
+    test_container = MBContainer("test_container", test_mbcontainer_conf, "300:6b9f:cca2:a583::/64")
+
+    output_compose_conf = test_container.to_compose_conf()
 
     with open(path.join(current_dir, "resources/test-man8s-compose.yaml"), "wb") as output_compose_file:
         output_compose_file.write(yaml.encode(output_compose_conf))
+
+def test_container_list():
+    host = MBHost()
+    containers = list()
+    print("Containers on host:", containers)
