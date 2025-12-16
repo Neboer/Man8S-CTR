@@ -10,6 +10,8 @@ services:
     - '[::]:9000:9000'
     - 9001:9001
     - '[::]:9001:9001'
+    - 114514:1919810/udp
+    - '[::]:114514:1919810/udp'
     volumes:
     - /var/lib/man8s/data/test_container/data:/data
     - /var/lib/man8s/data/test_container/data2:/data2
@@ -25,7 +27,7 @@ services:
       RUSTFS_CONSOLE_ENABLE: 'true'
       RUST_LOG: error
       RUSTFS_OBS_LOG_DIRECTORY: /log/
-    restart: always
+    restart: unless-stopped
 networks:
   man8yggbr:
     external: true

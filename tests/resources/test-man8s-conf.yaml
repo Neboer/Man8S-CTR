@@ -18,6 +18,7 @@ mount:
 port:
     - [9000, 9000]
     - [9001, 9001]
+    - [114514, 1919810, true]
 environment:
     RUSTFS_ACCESS_KEY: rustfsadmin
     RUSTFS_SECRET_KEY: rustfsadmin

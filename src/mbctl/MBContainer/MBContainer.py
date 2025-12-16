@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Sequence
 from mbctl.datatypes import (
     ComposeConf,
     MBContainerConf,
@@ -6,7 +6,7 @@ from mbctl.datatypes import (
     ComposeNetworkConfig,
 )
 from .MBContainerMount import MBContainerMount, get_mount_point_src
-from .MBContainerPort import MBContainerPort
+from .MBContainerPort import MBContainerPortMap
 from .MBContainerMetadata import MBContainerMetadata
 from .MBContainerStatus import MBContainerStatus
 from mbctl.MBConfig import mb_config
@@ -26,7 +26,7 @@ class MBContainer:
         self.enable_ygg = container_conf.enable_ygg
         self.autostart = container_conf.autostart
         self.mount = MBContainerMount(container_name, container_conf.mount)
-        self.port = MBContainerPort(container_conf.port)
+        self.port = MBContainerPortMap(container_conf.port)
         self.environment = container_conf.environment
         self.metadata = MBContainerMetadata(container_conf.metadata)
         self.status = status

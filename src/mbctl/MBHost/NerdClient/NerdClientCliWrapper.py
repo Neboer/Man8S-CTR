@@ -29,7 +29,7 @@ def nerd_ps(all: bool = False) -> list[str]:
 # 这个函数返回None表示容器不存在，True表示运行中，False表示停止。3
 def nerd_get_container_state(container_name: str) -> NerdContainerState:
     cmd = ["nerdctl", "inspect", "--format", "{{.State.Running}}", container_name]
-    output, return_code = run_cmd_get_output(cmd)
+    output, return_code = run_cmd_get_output(cmd, True)
     if return_code != 0:
         return NerdContainerState.not_exist
     else:

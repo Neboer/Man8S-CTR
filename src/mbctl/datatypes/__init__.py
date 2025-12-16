@@ -4,5 +4,6 @@ from .MBContainerConf import (
     MBContainerMountConf,
     MBContainerMountPointConf,
     MBContainerMetadataConf,
+    MBPortPiece
 )
 from .MountType import MountType

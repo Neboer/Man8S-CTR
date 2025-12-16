@@ -1,0 +1,63 @@
+image: docker.io/example/somecontainer:latest
+enable_ygg: true
+autostart: true
+mount:
+  data:
+    /data:
+      owner:
+      - 10001
+      - 10001
+      source: /var/lib/man8s/data/test_container/data
+      perm: '755'
+    /data2:
+      owner:
+      - 0
+      - 0
+      source: /var/lib/man8s/data/test_container/data2
+      perm: '755'
+    /data3:
+      owner:
+      - 0
+      - 0
+      source: /var/lib/man8s/data/test_container/data3
+      perm: '755'
+  log:
+    /log:
+      owner:
+      - 10001
+      - 10001
+      source: /var/lib/man8s/log/test_container/log
+      perm: '755'
+  conf:
+    /etc/example_config:
+      owner:
+      - 0
+      - 0
+      source: /var/lib/man8s/conf/test_container/etc/example_config
+      perm: '755'
+    /etc/some_big:
+      owner:
+      - 0
+      - 0
+      source: /var/lib/man8s/conf/test_container/etc/some_big
+      perm: '755'
+port:
+- - 9000
+  - 9000
+- - 9001
+  - 9001
+- - 114514
+  - 1919810
+  - true
+environment:
+  RUSTFS_ACCESS_KEY: rustfsadmin
+  RUSTFS_SECRET_KEY: rustfsadmin
+  RUSTFS_VOLUMES: /data/rustfs0
+  RUSTFS_ADDRESS: :9000
+  RUSTFS_CONSOLE_ENABLE: 'true'
+  RUST_LOG: error
+  RUSTFS_OBS_LOG_DIRECTORY: /log/
+metadata:
+  create_time: 2025-01-31 09:30:00
+  last_update_time: 2025-01-31 09:30:00
+  author: Neboer
