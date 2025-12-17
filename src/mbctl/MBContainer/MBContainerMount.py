@@ -51,12 +51,12 @@ class MBContainerMount:
         }
         for mount_type, mounts in mount_map.items():
             for inner_path, conf in mounts.items():
-                host_path = get_mount_point_src(self.container_name, mount_type, inner_path)
+                host_default_path = get_mount_point_src(self.container_name, mount_type, inner_path)
                 mount_points.append(
                     MBContainerMountEntry(
                         owner=conf.owner,
                         perm=conf.perm, # type: ignore
-                        source=host_path,
+                        source=host_default_path if conf.source is None else conf.source,
                         target=inner_path,
                         file=conf.file,
                         type=mount_type,
