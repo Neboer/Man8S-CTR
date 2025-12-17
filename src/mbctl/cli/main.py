@@ -44,7 +44,7 @@ def prepare(
 
 
 @app.command()
-def recreate(container_name: str):
+def rebuild(container_name: str):
     print(f"Recreating container: {container_name}")
     host.client.force_delete_container(container_name)
     host.build_new_container(container_name)
