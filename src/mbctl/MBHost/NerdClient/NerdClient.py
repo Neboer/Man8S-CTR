@@ -1,6 +1,7 @@
 # nerdctl api
 from typing import Optional
 from python_on_whales import Container, docker, DockerClient, exceptions
+from python_on_whales.utils import run
 from tempfile import TemporaryDirectory
 from mbctl.MBContainer import MBContainer
 from mbctl.MBConfig import mb_config
@@ -49,6 +50,9 @@ class NerdClient:
     def force_delete_container(self, container_name: str) -> None:
         self.stop_and_wait_container(container_name)
         self.client.container.remove(container_name)
+
+    def execute_any_command(self, command_args: list) -> tuple[str, str]:
+        return run(command_args, False, False)
 
     # 这个函数不支持在远程执行
     def compose_create_container(self, compose_conf: ComposeConf):

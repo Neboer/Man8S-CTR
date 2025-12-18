@@ -3,7 +3,7 @@ from mbctl.MBContainer import MBContainer
 from msgspec import yaml
 from os import path
 from mbctl.MBHost import MBHost
-from mbctl.cli.main import list
+from mbctl.cli.main import list_all_mbcontainers
 
 current_dir = path.dirname(__file__)
 
@@ -31,5 +31,5 @@ def test_conf_convert():
 
 def test_container_list():
     host = MBHost()
-    containers = list()
+    containers = list_all_mbcontainers()
     print("Containers on host:", containers)

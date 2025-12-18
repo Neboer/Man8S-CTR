@@ -5,25 +5,27 @@ from mbctl.MBHost import MBHost
 from prettytable import PrettyTable, TableStyle
 from mbctl.MBContainer import MBContainer
 from mbctl.datatypes import MBContainerConf, MBContainerMetadataConf
+from sys import argv
+import copy
 
 app = typer.Typer()
 host = MBHost()
 
 
-@app.command()
-def build(container_name: str):
+@app.command("run")
+def build_mbcontainer(container_name: str):
     print(f"Building container: {container_name}")
     host.build_new_container(container_name)
 
 
-@app.command()
-def prune(container_name: str):
+@app.command("prune")
+def prune_mbcontainer(container_name: str):
     print(f"Pruning container: {container_name}")
     host.remove_container_mounts(container_name)
 
 
-@app.command()
-def prepare(
+@app.command("create")
+def create_new_mbcontainer(
     container_name: str,
     image: Annotated[str, typer.Option(prompt="Please input a image.")],
     enable_ygg: Annotated[bool, typer.Option(prompt="Enable Yggdrasil?")] = True,
@@ -43,15 +45,15 @@ def prepare(
     host.create_container_from_conf(container_name, container_conf)
 
 
-@app.command()
-def rebuild(container_name: str):
+@app.command("rerun")
+def rebuild_mbcontainer(container_name: str):
     print(f"Recreating container: {container_name}")
     host.client.force_delete_container(container_name)
     host.build_new_container(container_name)
 
 
-@app.command()
-def start_all_autostart():
+@app.command("autostart")
+def start_all_autostart_mbcontainers():
     containers = host.list_containers()
     for container in containers:
         if container.autostart:
@@ -59,8 +61,8 @@ def start_all_autostart():
             host.client.start_container(container.name)
 
 
-@app.command()
-def list():
+@app.command("list")
+def list_all_mbcontainers():
     # 列出所有的容器，并整理他们的状态，打印他们的名字、镜像、运行状态以及ygg地址。
     table = PrettyTable()
     table.field_names = ["Container", "Image", "Status", "AutoStart", "YggAddr"]
@@ -80,6 +82,20 @@ def list():
     table.set_style(TableStyle.PLAIN_COLUMNS)
     print(table)
 
+# execute command just like nerdctl's executing.
+def just_like_nerdctl(commands):
+    host.client.execute_any_command(commands)
 
+def main():
+    command_names = [c.name for c in app.registered_commands]
+    if len(argv) == 1:
+        app() # no command provide, print help.
+    elif argv[1] in command_names:
+        app() # hit our commands, use our version
+    else:
+        cli_args = copy.copy(argv)
+        cli_args[0] = "nerdctl"
+        just_like_nerdctl(cli_args) # just like nerdctl's execution.
+    
 if __name__ == "__main__":
-    app()
+    main()
