@@ -15,7 +15,8 @@ services:
     volumes:
     - /var/lib/man8s/data/test_container/data:/data
     - /var/lib/man8s/data/test_container/data2:/data2
-    - /var/lib/man8s/data/test_container/data3:/data3
+    - /mnt/data/rustfs:/data3
+    - None:/shared-data
     - /var/lib/man8s/log/test_container/log:/log
     - /var/lib/man8s/conf/test_container/etc/example_config:/etc/example_config
     - /var/lib/man8s/conf/test_container/etc/some_big:/etc/some_big

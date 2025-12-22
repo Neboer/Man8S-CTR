@@ -1,4 +1,6 @@
-from typing import Optional, Sequence
+from __future__ import annotations
+
+from typing import Mapping, Optional, Sequence
 from mbctl.datatypes import (
     ComposeConf,
     MBContainerConf,
@@ -12,7 +14,8 @@ from .MBContainerStatus import MBContainerStatus
 from mbctl.MBConfig import mb_config
 from mbctl.network import string_to_v6suffix
 
-
+# MBContainer表示一个从配置文件构造的、便于使用的容器对象。MBContainer并不在构造时解析容器中保存的引用，而是提供一个resolve_references方法来解析引用。
+# 使用时，需要先构造MBContainer对象，然后根据其require字段的依赖关系，构造一棵MBContainerTree依赖树，然后从最底层开始依次调用resolve_references方法，最终完成所有容器的引用解析。
 class MBContainer:
     def __init__(
         self,
@@ -25,17 +28,26 @@ class MBContainer:
         self.image = container_conf.image
         self.enable_ygg = container_conf.enable_ygg
         self.autostart = container_conf.autostart
+        self.require = container_conf.require
         self.mount = MBContainerMount(container_name, container_conf.mount)
         self.port = MBContainerPortMap(container_conf.port)
         self.environment = container_conf.environment
         self.metadata = MBContainerMetadata(container_conf.metadata)
         self.status = status
+        self.resolved = False  # 是否已经完成了解析引用
 
         self.yggdrasil_addr: Optional[str] = None
         if self.enable_ygg:
-            self.yggdrasil_addr = string_to_v6suffix(
-                host_yggdrasil_prefix, self.name
-            )
+            self.yggdrasil_addr = string_to_v6suffix(host_yggdrasil_prefix, self.name)
+
+    # reference_contaienrs 是容器间引用的其他容器列表。部分容器的配置文件可能会引用其他容器的配置，所以需要传入这个参数让容器可以获取到其他容器的信息。
+    # 注意reference_containers必须是已经完成resolved的MBContainer，MBContainer不应该支持递归解析。
+    def resolve_references(
+        self, reference_containers: Mapping[str, "MBContainer"] | None = None
+    ) -> None:
+        refs = reference_containers or {}
+        self.mount.resolve_references(refs)
+        self.resolved = True
 
     def to_compose_conf(self) -> ComposeConf:
         """
@@ -74,6 +86,7 @@ class MBContainer:
             image=self.image,
             enable_ygg=self.enable_ygg,
             autostart=self.autostart,
+            require=self.require,
             mount=mount_conf,
             port=port_conf,
             environment=self.environment,

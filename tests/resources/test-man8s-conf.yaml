@@ -1,6 +1,9 @@
 image: "docker.io/example/somecontainer:latest"
 enable_ygg: true
 autostart: true
+require:
+    - my-dns-server
+    - test-nginx-1
 mount:
     data:
         /data:
@@ -9,6 +12,8 @@ mount:
         /data2: {}
         /data3:
             source: /mnt/data/rustfs
+        /shared-data:
+            source: 'test-nginx-1:/some/data'
     log:
         /log:
             owner: [10001, 10001]

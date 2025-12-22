@@ -1,13 +1,19 @@
 # nerdctl api
 from typing import Optional
-from python_on_whales import Container, docker, DockerClient, exceptions
-from python_on_whales.utils import run
 from tempfile import TemporaryDirectory
 from mbctl.MBContainer import MBContainer
 from mbctl.MBConfig import mb_config
 from mbctl.datatypes import ComposeConf
 from mbctl.TempfileUtils import change_cwd
-from .NerdClientCliWrapper import nerd_ps, nerd_get_container_state
+from .NerdClientCliWrapper import (
+    nerd_ps,
+    nerd_get_container_state,
+    nerd_start_container,
+    nerd_stop_and_wait_container,
+    nerd_force_delete_container,
+    nerd_compose_up,
+    execute_any_command,
+)
 from .NerdContainer import NerdContainerState
 from enum import Enum
 
@@ -17,7 +23,6 @@ class NerdClient:
     # 未来，这个函数会支持远程host，从而实现对远程nerdctl的管理。
     def __init__(self, host=None) -> None:
         self.host = host
-        self.client = DockerClient(host=host, client_call=["nerdctl"])
 
     def list_running_containers_names(self) -> list[str]:
         # containers = self.client.container.list(all=False)
@@ -34,29 +39,22 @@ class NerdClient:
     def get_container_state(self, container_name: str) -> NerdContainerState:
         return nerd_get_container_state(container_name)
 
-    def get_container_info(self, container_name: str) -> Optional[Container]:
-        try:
-            return self.client.container.inspect(container_name)
-        except exceptions.NoSuchContainer:
-            return None
-
     def start_container(self, container_name: str) -> None:
-        self.client.container.start(container_name)
+        nerd_start_container(container_name)
 
     def stop_and_wait_container(self, container_name: str) -> None:
-        self.client.container.stop(container_name)
-        self.client.container.wait(container_name)
+        nerd_stop_and_wait_container(container_name)
 
     def force_delete_container(self, container_name: str) -> None:
         self.stop_and_wait_container(container_name)
-        self.client.container.remove(container_name)
+        nerd_force_delete_container(container_name)
 
-    def execute_any_command(self, command_args: list) -> tuple[str, str]:
-        return run(command_args, False, False)
+    def execute_any_command(self, command_args: list) -> None:
+        execute_any_command(command_args)
 
     # 这个函数不支持在远程执行
     def compose_create_container(self, compose_conf: ComposeConf):
         with TemporaryDirectory() as tmpdir:
             with change_cwd(tmpdir):
                 compose_conf.to_yaml_file(compose_conf, "compose.yaml")
-                self.client.compose.up(detach=True)
+                nerd_compose_up()

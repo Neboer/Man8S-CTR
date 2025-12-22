@@ -15,6 +15,8 @@ def create_container_from_conf(
     # realize the path's parent directory
     os.makedirs(os.path.dirname(container_conf_path), exist_ok=True)
     container_conf.to_yaml_file(container_conf_path)
+    # reload cache to include the new container and keep references resolved
+    self._reload_and_resolve_containers()
 
 
 # 将一个MBContainer配置第一次运行起来成为一个container，是程序的主要功能。
@@ -44,16 +46,16 @@ def prepare_mount_entry(mount_entry: MBContainerMountEntry) -> None:
     if not mount_entry.file:  # 只创建目录挂载点，跳过文件挂载点。
         # 为什么要跳过？因为自动创建文件挂载点甚至只是创建它的父目录都会引起极大的困惑。
         realize_dir_mount_conf(
-            mount_entry.source,
+            mount_entry.source.real_mount_source_path,
             mount_entry.owner[0],
             mount_entry.owner[1],
             mount_entry.perm,
         )
     else:
         # 如果是文件挂载点，则检查此挂载点的实际源文件是否存在，如果不存在则报错并不要创建。
-        if not os.path.exists(mount_entry.source):
+        if not os.path.exists(mount_entry.source.real_mount_source_path):
             raise FileNotFoundError(
                 f"Mount source file {mount_entry.source} does not exist."
             )
-        elif not os.path.isfile(mount_entry.source):
+        elif not os.path.isfile(mount_entry.source.real_mount_source_path):
             raise FileNotFoundError(f"Mount source {mount_entry.source} is not a file.")

@@ -38,7 +38,6 @@ license = { text = "Apache-2.0" }
 
 dependencies = [
     "pyyaml",
-    "python-on-whales",
     "msgspec",
     "typer",
     "prettytable",
