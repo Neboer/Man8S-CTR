@@ -79,38 +79,11 @@ def create_new_mbcontainer(
             prompt="Please input a image.",
             help="Container image reference, for example: library/redis:latest.",
         ),
-    ],
-    enable_ygg: Annotated[
-        bool,
-        typer.Option(
-            "--enable-ygg/--disable-ygg",
-            prompt="Enable Yggdrasil?",
-            help="Attach the container to the Yggdrasil overlay network.",
-        ),
-    ] = True,
-    autostart: Annotated[
-        bool,
-        typer.Option(
-            "--autostart/--no-autostart",
-            prompt="Enable AutoStart?",
-            help="Start the container automatically when Man8S boots.",
-        ),
-    ] = True,
-    author: Annotated[
-        str,
-        typer.Option(
-            prompt="Please input author metadata.",
-            help="Metadata author recorded for traceability.",
-        ),
-    ] = "unknown",
+    ]
 ):
     print(f"preparing container: {container_name}")
-    container_conf_metadata = MBContainerMetadataConf(author=author)
     container_conf = MBContainerConf(
-        image=image,
-        enable_ygg=enable_ygg,
-        autostart=autostart,
-        metadata=container_conf_metadata,
+        image=image
     )
     host.create_container_from_conf(container_name, container_conf)
 
@@ -122,7 +95,10 @@ def create_new_mbcontainer(
 def rebuild_mbcontainer(
     container_name: Annotated[
         str, typer.Argument(help="Container name to rebuild from scratch.")
-    ]
+    ],
+    update: Annotated[
+        bool, typer.Option("--update", "-u", help="Pull the latest image before recreating.")
+    ] = False,
 ):
     print(f"Recreating container: {container_name}")
     host.client.force_delete_container(container_name)

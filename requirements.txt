@@ -1,5 +1,5 @@
 pyyaml
-python-on-whales
+# python-on-whales
 msgspec
 typer
 prettytable

@@ -17,6 +17,14 @@ def run_cmd_get_output(cmd: list[str], allow_error=False) -> tuple[str, int]:
     return proc.stdout, proc.returncode
 
 
+def run_cmd(cmd: list[str], allow_error=False) -> None:
+    subprocess.run(
+        cmd,
+        text=True,
+        check=not allow_error,
+    )
+
+
 def nerd_ps(all: bool = False) -> list[str]:
     cmd = ["nerdctl", "ps", "--format={{json .Names}}"]
     if all:
@@ -37,3 +45,30 @@ def nerd_get_container_state(container_name: str) -> NerdContainerState:
             return NerdContainerState.running
         else:
             return NerdContainerState.stopped
+
+
+def nerd_start_container(container_name: str) -> None:
+    cmd = ["nerdctl", "start", container_name]
+    run_cmd_get_output(cmd)
+
+
+def nerd_stop_and_wait_container(container_name: str) -> None:
+    run_cmd(["nerdctl", "stop", container_name])
+    run_cmd(["nerdctl", "wait", container_name])
+
+
+def nerd_force_delete_container(container_name: str) -> None:
+    nerd_stop_and_wait_container(container_name)
+    run_cmd(["nerdctl", "rm", container_name])
+
+
+def nerd_compose_up(compose_file_path: Optional[str] = None) -> None:
+    if compose_file_path is None:
+        cmd = ["nerdctl", "compose", "up", "-d"]
+    else:
+        cmd = ["nerdctl", "compose", "-f", compose_file_path, "up", "-d"]
+    run_cmd(cmd)
+
+
+def execute_any_command(command_args: list) -> None:
+    run_cmd(command_args)

@@ -5,8 +5,13 @@ from msgspec import yaml
 from .MountType import MountType
 
 
-def is_valid_path(p: str) -> bool:
-    # Simple validation to check if the path is absolute and does not contain illegal characters
+def is_valid_path_or_reference(p: str) -> bool:
+    # 支持两种形式：
+    # 1) 绝对路径："/some/host/path"
+    # 2) 引用形式："<container-name>:/inner/path"
+    if ":" in p:
+        name, inner = p.split(":", 1)
+        return bool(name) and inner.startswith("/") and ".." not in inner
     return p.startswith("/") and ".." not in p
 
 
@@ -17,7 +22,7 @@ class MBContainerMountPointConf(Struct, omit_defaults=True):
     perm: Optional[str] = None  # 需要在post init中根据file来设置默认权限
 
     def __post_init__(self):
-        if self.source and not is_valid_path(self.source):
+        if self.source and not is_valid_path_or_reference(self.source):
             raise ValueError(f"Invalid source path: {self.source}")
         if self.perm is None:
             self.perm = "644" if self.file else "755"
@@ -40,7 +45,7 @@ class MBContainerMountConf(Struct, omit_defaults=True):
         ]:
             if mount_group:
                 for mount_point, conf in mount_group.items():
-                    if not is_valid_path(mount_point):
+                    if not is_valid_path_or_reference(mount_point):
                         raise ValueError(f"Invalid mount point path: {mount_point}")
 
 
@@ -57,6 +62,7 @@ class MBContainerConf(Struct, kw_only=True):
     image: str
     enable_ygg: bool = True
     autostart: bool = True
+    require: Sequence[str] = []
     mount: MBContainerMountConf = field(default_factory=MBContainerMountConf)
     # host_port, container_port, is_udp(optional)
     # 通常，不建议设置is_udp为false，忽略它即可。

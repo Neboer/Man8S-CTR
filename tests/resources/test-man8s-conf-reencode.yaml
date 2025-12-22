@@ -1,6 +1,9 @@
 image: docker.io/example/somecontainer:latest
 enable_ygg: true
 autostart: true
+require:
+- my-dns-server
+- test-nginx-1
 mount:
   data:
     /data:
@@ -19,7 +22,13 @@ mount:
       owner:
       - 0
       - 0
-      source: /var/lib/man8s/data/test_container/data3
+      source: /mnt/data/rustfs
+      perm: '755'
+    /shared-data:
+      owner:
+      - 0
+      - 0
+      source: test-nginx-1:/some/data
       perm: '755'
   log:
     /log:

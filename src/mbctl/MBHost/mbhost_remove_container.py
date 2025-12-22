@@ -39,7 +39,7 @@ def remove_container_mounts(
         for mount_entry in target_container.mount.mount_points:
             if mount_entry.type in target_mount_type:
                 if not mount_entry.file:
-                    if os.path.exists(mount_entry.source):
-                        rmtree(mount_entry.source)
+                    if os.path.exists(mount_entry.source.real_mount_source_path):
+                        rmtree(mount_entry.source.real_mount_source_path)
                 else:
-                    os.remove(mount_entry.source)
+                    os.remove(mount_entry.source.real_mount_source_path)
