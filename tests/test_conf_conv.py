@@ -27,6 +27,9 @@ def test_conf_convert():
         path.join(current_dir, "resources/test-man8s-conf-reencode.yaml"), "wb"
     ) as output_mbconf_file:
         output_mbconf_file.write(yaml.encode(test_container.to_mbcontainer_conf()))
+    MBContainerConf.to_json_schema_file(
+        path.join(current_dir, "resources/mbcontainerconf-schema.json")
+    )
 
 
 def test_container_list():

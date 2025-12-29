@@ -34,6 +34,7 @@ class MBContainer:
         self.require = container_conf.require
         self.mount = MBContainerMount(container_name, container_conf.mount)
         self.port = MBContainerPortMap(container_conf.port)
+        self.owner = container_conf.owner
         self.environment = container_conf.environment
         self.metadata = MBContainerMetadata(container_conf.metadata)
         self.status = status
@@ -41,6 +42,8 @@ class MBContainer:
         # self.local_access 是额外的本地访问主机名列表，不做校验，直接生成对应ygg地址即可。
         self.local_access = container_conf.local_access
         self.dns = MBContainerDNS(container_conf.dns)
+        self.capabilities = container_conf.capabilities
+        self.security_opt = container_conf.security_opt
 
         self.host_yggdrasil_prefix = host_yggdrasil_prefix
         self.yggdrasil_addr: Optional[str] = None
@@ -91,10 +94,13 @@ class MBContainer:
             networks=[network_name],
             volumes=self.mount.to_compose_volumes(),
             ports=self.port.to_compose_ports(),
+            user=f"{self.owner[0]}:{self.owner[1]}",
             environment=self.environment,
             restart=restart,
             extra_hosts=extra_hosts,
             dns=self.dns.to_compose_dns_entry(self.host_yggdrasil_prefix),
+            cap_add=[cap.value for cap in self.capabilities],
+            security_opt=self.security_opt,
         )
 
         return ComposeConf(

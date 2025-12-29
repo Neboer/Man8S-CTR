@@ -6,7 +6,7 @@ from typing import Dict, Optional
 
 from mbctl.network.yggdrasil_addr import get_host_yggdrasil_address_and_subnet
 from .NerdClient.NerdClient import NerdClient
-from mbctl.MBContainer import MBContainer
+from mbctl.MBContainer import MBContainer, MBContainerTree
 from mbctl.datatypes import MountType
 from mbctl.MBConfig import mb_config
 
@@ -32,6 +32,7 @@ class MBHost:
         os.makedirs(self.config_base_dir, exist_ok=True)
 
         self._containers_by_name: Dict[str, MBContainer] = {}
+        self._container_tree: MBContainerTree
         self._reload_and_resolve_containers()
 
     def get_container_confdir(self, container_name: str) -> str:
@@ -47,7 +48,12 @@ class MBHost:
         _reload_and_resolve_containers,
     )
 
-    from .mbhost_create_container import build_new_container, create_container_from_conf
+    from .mbhost_create_container import (
+        build_new_container,
+        build_all_containers,
+        create_container_from_conf,
+    )
+    
     from .mbhost_get_container import (
         get_container_status,
         get_mbcontainer_conf,

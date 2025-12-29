@@ -58,6 +58,9 @@ port:
 - - 114514
   - 1919810
   - true
+owner:
+- 0
+- 0
 environment:
   RUSTFS_ACCESS_KEY: rustfsadmin
   RUSTFS_SECRET_KEY: rustfsadmin
@@ -74,3 +77,5 @@ local_access:
 - my-dns-server
 - test-nginx-1
 dns: host
+capabilities: []
+security_opt: []

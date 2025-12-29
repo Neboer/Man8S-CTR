@@ -58,7 +58,6 @@ def nerd_stop_and_wait_container(container_name: str) -> None:
 
 
 def nerd_force_delete_container(container_name: str) -> None:
-    nerd_stop_and_wait_container(container_name)
     run_cmd(["nerdctl", "rm", container_name])
 
 

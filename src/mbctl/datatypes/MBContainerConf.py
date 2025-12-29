@@ -1,7 +1,8 @@
 from typing import Optional, Tuple, Union, Sequence, assert_type
-from msgspec import Struct, field
+from msgspec import Struct, field, json, yaml
 from datetime import datetime
-from msgspec import yaml
+
+from .CapabilitiesType import CapabilitiesType
 from .MountType import MountType
 
 
@@ -67,12 +68,15 @@ class MBContainerConf(Struct, kw_only=True):
     # host_port, container_port, is_udp(optional)
     # 通常，不建议设置is_udp为false，忽略它即可。
     port: Sequence[tuple] = []
+    owner: Tuple[int, int] = (0, 0)  # default owner uid,gid for the container
     environment: dict[str, str] = {}
     metadata: MBContainerMetadataConf = field(default_factory=MBContainerMetadataConf)
     # 允许容器本地访问的额外主机名，这些主机名的ygg地址会被添加到extra_hosts中。
     local_access: set[str] = field(default_factory=set)
     # 容器的DNS设置。host表示与主机相同，还可以写成一个具体的容器名字表示使用容器ygg地址当作DNS服务器。也可以写成一个具体的IPv4/IPv6地址。
     dns: str = "host"
+    capabilities: list[CapabilitiesType] = []
+    security_opt: list[str] = []
 
     def __post_init__(self):
         for p in self.port:
@@ -90,3 +94,10 @@ class MBContainerConf(Struct, kw_only=True):
         with open(file_path, "w", encoding="utf-8") as f:
             yaml_data = yaml.encode(self)
             f.write(yaml_data.decode("utf-8"))
+
+    @staticmethod
+    def to_json_schema_file(file_path: str) -> None:
+        json_schema = json.schema(MBContainerConf)
+        with open(file_path, "w", encoding="utf-8") as f:
+            json_data = json.encode(json_schema)
+            f.write(json_data.decode("utf-8"))

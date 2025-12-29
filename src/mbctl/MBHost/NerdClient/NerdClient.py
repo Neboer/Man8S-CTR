@@ -43,7 +43,8 @@ class NerdClient:
         nerd_start_container(container_name)
 
     def stop_and_wait_container(self, container_name: str) -> None:
-        nerd_stop_and_wait_container(container_name)
+        if self.get_container_state(container_name) == NerdContainerState.running:
+            nerd_stop_and_wait_container(container_name)
 
     def force_delete_container(self, container_name: str) -> None:
         self.stop_and_wait_container(container_name)
