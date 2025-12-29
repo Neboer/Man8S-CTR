@@ -7,7 +7,7 @@ from mbctl.datatypes import MBContainerConf, MBContainerMetadataConf
 from sys import argv
 import copy
 
-__version__ = "v0.1"
+__version__ = "v0.2"
 
 app = typer.Typer(
     help=(

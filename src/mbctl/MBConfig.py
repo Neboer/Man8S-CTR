@@ -19,7 +19,7 @@ class MBConfig(Struct):
     network: MBNetworkNameConfig = field(default_factory=MBNetworkNameConfig)
     config_file: str = "container.yaml"
     nerdconfig: NerdConfig = field(default_factory=NerdConfig)
-
+    local_domain: str = "man8s.local"
 
 if posixpath.exists(MAN8S_CONFIG_FILE):
     with open(MAN8S_CONFIG_FILE, "r") as f:

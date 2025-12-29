@@ -69,10 +69,16 @@ class MBContainerConf(Struct, kw_only=True):
     port: Sequence[tuple] = []
     environment: dict[str, str] = {}
     metadata: MBContainerMetadataConf = field(default_factory=MBContainerMetadataConf)
+    # 允许容器本地访问的额外主机名，这些主机名的ygg地址会被添加到extra_hosts中。
+    local_access: set[str] = field(default_factory=set)
+    # 容器的DNS设置。host表示与主机相同，还可以写成一个具体的容器名字表示使用容器ygg地址当作DNS服务器。也可以写成一个具体的IPv4/IPv6地址。
+    dns: str = "host"
 
     def __post_init__(self):
         for p in self.port:
-            assert_type(p, MBPortPiece) # type: ignore
+            assert_type(p, MBPortPiece)  # type: ignore
+        if not self.enable_ygg and self.local_access:
+            raise ValueError("local_access can only be set when enable_ygg is True.")
 
     @classmethod
     def from_yaml_file(cls, file_path: str) -> "MBContainerConf":
