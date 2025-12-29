@@ -1,10 +1,10 @@
 # represent a docker compose file's structure.
 from typing import Dict, Any, List
-from msgspec import Struct, field
-from msgspec import yaml
+from msgspec import Struct, field, yaml
+from typing import Optional
 
 
-class ComposeServiceConf(Struct, kw_only=True):
+class ComposeServiceConf(Struct, kw_only=True, omit_defaults=True):
     image: str
     container_name: str
     hostname: str
@@ -13,6 +13,8 @@ class ComposeServiceConf(Struct, kw_only=True):
     volumes: List[str] = field(default_factory=list)
     environment: Dict[str, str] = field(default_factory=dict)
     restart: str
+    extra_hosts: Dict[str, str] = field(default_factory=dict)
+    dns: Optional[str] = None
 
 
 class ComposeNetworkConfig(Struct):

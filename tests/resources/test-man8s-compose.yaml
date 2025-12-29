@@ -29,6 +29,10 @@ services:
       RUST_LOG: error
       RUSTFS_OBS_LOG_DIRECTORY: /log/
     restart: unless-stopped
+    extra_hosts:
+      my-dns-server.man8s.local: 300:6b9f:cca2:a583:a185:8936:da18:75a5
+      test-nginx-1.man8s.local: 300:6b9f:cca2:a583:a185:8936:da18:75a5
+      test_container.man8s.local: 300:6b9f:cca2:a583:a185:8936:da18:75a5
 networks:
   man8yggbr:
     external: true
