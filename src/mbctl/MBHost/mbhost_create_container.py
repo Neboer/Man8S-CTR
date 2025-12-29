@@ -30,6 +30,10 @@ def build_new_container(self: MBHost, container_name: str) -> None:
     # 3. 使用nerdctl创建容器
     self.client.compose_create_container(container.to_compose_conf())
 
+def build_all_containers(self: MBHost) -> None:
+    """Build all containers defined in the MBHost's container tree."""
+    for container in self._container_tree.bfs_traversal():
+        self.build_new_container(container.name)
 
 def realize_dir_mount_conf(
     mount_dir: str, uid: int = 0, gid: int = 0, perm: str = "755"

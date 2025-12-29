@@ -12,6 +12,7 @@ services:
     - '[::]:9001:9001'
     - 114514:1919810/udp
     - '[::]:114514:1919810/udp'
+    user: 0:0
     volumes:
     - /var/lib/man8s/data/test_container/data:/data
     - /var/lib/man8s/data/test_container/data2:/data2
@@ -31,8 +32,8 @@ services:
     restart: unless-stopped
     extra_hosts:
       my-dns-server.man8s.local: 300:6b9f:cca2:a583:a185:8936:da18:75a5
-      test-nginx-1.man8s.local: 300:6b9f:cca2:a583:a185:8936:da18:75a5
       test_container.man8s.local: 300:6b9f:cca2:a583:a185:8936:da18:75a5
+      test-nginx-1.man8s.local: 300:6b9f:cca2:a583:a185:8936:da18:75a5
 networks:
   man8yggbr:
     external: true

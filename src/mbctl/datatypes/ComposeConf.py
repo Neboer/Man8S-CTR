@@ -10,11 +10,14 @@ class ComposeServiceConf(Struct, kw_only=True, omit_defaults=True):
     hostname: str
     networks: List[str] = field(default_factory=list)
     ports: List[str] = field(default_factory=list)
+    user: str = "0:0"
     volumes: List[str] = field(default_factory=list)
     environment: Dict[str, str] = field(default_factory=dict)
     restart: str
     extra_hosts: Dict[str, str] = field(default_factory=dict)
     dns: Optional[str] = None
+    cap_add: List[str] = field(default_factory=list)
+    security_opt: List[str] = field(default_factory=list)
 
 
 class ComposeNetworkConfig(Struct):

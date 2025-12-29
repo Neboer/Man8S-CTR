@@ -34,8 +34,8 @@ def _reload_and_resolve_containers(self: MBHost) -> None:
     containers = [
         _load_container_from_disk(self, name) for name in _discover_container_names(self)
     ]
-    if containers:
-        MBContainerTree(containers).resolve_all()
+    self._container_tree = MBContainerTree(containers)
+    self._container_tree.resolve_all()
     self._containers_by_name = {c.name: c for c in containers}
 
 

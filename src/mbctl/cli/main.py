@@ -48,7 +48,7 @@ def main_callback(
 def build_mbcontainer(
     container_name: Annotated[
         str, typer.Argument(help="Container name defined in Man8S compose-style specs.")
-    ]
+    ],
 ):
     print(f"Building container: {container_name}")
     host.build_new_container(container_name)
@@ -58,7 +58,7 @@ def build_mbcontainer(
 def prune_mbcontainer(
     container_name: Annotated[
         str, typer.Argument(help="Target container name to prune mounts for.")
-    ]
+    ],
 ):
     print(f"Pruning container: {container_name}")
     host.remove_container_mounts(container_name)
@@ -79,12 +79,10 @@ def create_new_mbcontainer(
             prompt="Please input a image.",
             help="Container image reference, for example: library/redis:latest.",
         ),
-    ]
+    ],
 ):
     print(f"preparing container: {container_name}")
-    container_conf = MBContainerConf(
-        image=image
-    )
+    container_conf = MBContainerConf(image=image)
     host.create_container_from_conf(container_name, container_conf)
 
 
@@ -97,7 +95,8 @@ def rebuild_mbcontainer(
         str, typer.Argument(help="Container name to rebuild from scratch.")
     ],
     update: Annotated[
-        bool, typer.Option("--update", "-u", help="Pull the latest image before recreating.")
+        bool,
+        typer.Option("--update", "-u", help="Pull the latest image before recreating."),
     ] = False,
 ):
     print(f"Recreating container: {container_name}")
@@ -136,6 +135,23 @@ def list_all_mbcontainers():
     # table.padding_width = 1
     print(table)
 
+
+@app.command(
+    "shell",
+    help="Execute commands just like nerdctl's executing, default to bash shell.",
+)
+def nerdctl_shell(
+    container_name: Annotated[
+        str,
+        typer.Argument(help="Target container name to execute commands in."),
+    ],
+):
+    print(f"Executing nerdctl shell in container: {container_name}")
+    host.client.execute_any_command(
+        ["nerdctl", "exec", "-it", container_name, "/bin/bash"]
+    )
+
+
 # execute command just like nerdctl's executing.
 def just_like_nerdctl(commands):
     host.client.execute_any_command(commands)
@@ -144,14 +160,17 @@ def just_like_nerdctl(commands):
 def main():
     command_names = [c.name for c in app.registered_commands]
     global_flags = {"--help", "-h", "--version", "-v"}
-    if len(argv) == 1 or argv[1] in command_names or any(
-        flag in argv[1:] for flag in global_flags
+    if (
+        len(argv) == 1
+        or argv[1] in command_names
+        or any(flag in argv[1:] for flag in global_flags)
     ):
         app(prog_name="mbctl")
     else:
         cli_args = copy.copy(argv)
         cli_args[0] = "nerdctl"
-        just_like_nerdctl(cli_args) # just like nerdctl's execution.
-    
+        just_like_nerdctl(cli_args)  # just like nerdctl's execution.
+
+
 if __name__ == "__main__":
     main()
