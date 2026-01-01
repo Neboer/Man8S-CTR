@@ -50,3 +50,5 @@ local_access:
     - my-dns-server
     - test-nginx-1
 dns: "host"
+extra_compose_configs:
+    user: "10001:10001"

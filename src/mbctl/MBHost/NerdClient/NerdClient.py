@@ -13,6 +13,7 @@ from .NerdClientCliWrapper import (
     nerd_force_delete_container,
     nerd_compose_up,
     execute_any_command,
+    run_cmd,
 )
 from .NerdContainer import NerdContainerState
 from enum import Enum
@@ -50,12 +51,15 @@ class NerdClient:
         self.stop_and_wait_container(container_name)
         nerd_force_delete_container(container_name)
 
-    def execute_any_command(self, command_args: list) -> None:
-        execute_any_command(command_args)
+    def execute_any_command_safely(self, command_args: list) -> int:
+        # Run any command without raising even when it fails; return its exit code.
+        return run_cmd(command_args, allow_error=True)
 
     # 这个函数不支持在远程执行
     def compose_create_container(self, compose_conf: ComposeConf):
         with TemporaryDirectory() as tmpdir:
             with change_cwd(tmpdir):
-                compose_conf.to_yaml_file(compose_conf, "compose.yaml")
+                with open("compose.yaml", "w", encoding="utf-8") as compose_conf_file:
+                    compose_conf_file.write(compose_conf.to_compose_yaml_str())
+                
                 nerd_compose_up()

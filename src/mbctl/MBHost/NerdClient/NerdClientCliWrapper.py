@@ -17,12 +17,13 @@ def run_cmd_get_output(cmd: list[str], allow_error=False) -> tuple[str, int]:
     return proc.stdout, proc.returncode
 
 
-def run_cmd(cmd: list[str], allow_error=False) -> None:
-    subprocess.run(
+def run_cmd(cmd: list[str], allow_error=False) -> int:
+    proc = subprocess.run(
         cmd,
         text=True,
         check=not allow_error,
     )
+    return proc.returncode
 
 
 def nerd_ps(all: bool = False) -> list[str]:
@@ -69,5 +70,5 @@ def nerd_compose_up(compose_file_path: Optional[str] = None) -> None:
     run_cmd(cmd)
 
 
-def execute_any_command(command_args: list) -> None:
-    run_cmd(command_args)
+def execute_any_command(command_args: list) -> int:
+    return run_cmd(command_args)

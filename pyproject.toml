@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mbctl"
-version = "0.2"
+version = "0.3"
 description = "mbctl is a Man8S container orchestration tool built on nerdctl/containerd, providing container lifecycle and networking workflows while proxying unrecognized commands to nerdctl."
 readme = "README.md"
 requires-python = ">=3.12"

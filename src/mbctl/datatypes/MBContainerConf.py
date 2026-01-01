@@ -2,7 +2,6 @@ from typing import Optional, Tuple, Union, Sequence, assert_type
 from msgspec import Struct, field, json, yaml
 from datetime import datetime
 
-from .CapabilitiesType import CapabilitiesType
 from .MountType import MountType
 
 
@@ -16,7 +15,7 @@ def is_valid_path_or_reference(p: str) -> bool:
     return p.startswith("/") and ".." not in p
 
 
-class MBContainerMountPointConf(Struct, omit_defaults=True):
+class MBContainerMountPointConf(Struct, omit_defaults=True, forbid_unknown_fields=True):
     owner: list[int] = field(default_factory=lambda: [0, 0])  # [uid, gid]
     source: Optional[str] = None  # source path
     file: bool = False  # whether it's a file mount point
@@ -29,7 +28,7 @@ class MBContainerMountPointConf(Struct, omit_defaults=True):
             self.perm = "644" if self.file else "755"
 
 
-class MBContainerMountConf(Struct, omit_defaults=True):
+class MBContainerMountConf(Struct, omit_defaults=True, forbid_unknown_fields=True):
     data: dict[str, MBContainerMountPointConf] = {}
     log: dict[str, MBContainerMountPointConf] = {}
     conf: dict[str, MBContainerMountPointConf] = {}
@@ -59,7 +58,7 @@ class MBContainerMetadataConf(Struct, kw_only=True):
 type MBPortPiece = Union[Tuple[int, int], Tuple[int, int, bool]]
 
 
-class MBContainerConf(Struct, kw_only=True):
+class MBContainerConf(Struct, kw_only=True, forbid_unknown_fields=True):
     image: str
     enable_ygg: bool = True
     autostart: bool = True
@@ -68,15 +67,13 @@ class MBContainerConf(Struct, kw_only=True):
     # host_port, container_port, is_udp(optional)
     # 通常，不建议设置is_udp为false，忽略它即可。
     port: Sequence[tuple] = []
-    owner: Tuple[int, int] = (0, 0)  # default owner uid,gid for the container
     environment: dict[str, str] = {}
     metadata: MBContainerMetadataConf = field(default_factory=MBContainerMetadataConf)
     # 允许容器本地访问的额外主机名，这些主机名的ygg地址会被添加到extra_hosts中。
     local_access: set[str] = field(default_factory=set)
     # 容器的DNS设置。host表示与主机相同，还可以写成一个具体的容器名字表示使用容器ygg地址当作DNS服务器。也可以写成一个具体的IPv4/IPv6地址。
     dns: str = "host"
-    capabilities: list[CapabilitiesType] = []
-    security_opt: list[str] = []
+    extra_compose_configs: dict = field(default_factory=dict)
 
     def __post_init__(self):
         for p in self.port:

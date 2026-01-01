@@ -7,7 +7,7 @@ from mbctl.datatypes import MBContainerConf, MBContainerMetadataConf
 from sys import argv
 import copy
 
-__version__ = "v0.2"
+__version__ = "v0.3"
 
 app = typer.Typer(
     help=(
@@ -147,14 +147,15 @@ def nerdctl_shell(
     ],
 ):
     print(f"Executing nerdctl shell in container: {container_name}")
-    host.client.execute_any_command(
+    rc = host.client.execute_any_command_safely(
         ["nerdctl", "exec", "-it", container_name, "/bin/bash"]
     )
+    raise typer.Exit(code=rc)
 
 
 # execute command just like nerdctl's executing.
 def just_like_nerdctl(commands):
-    host.client.execute_any_command(commands)
+    return host.client.execute_any_command_safely(commands)
 
 
 def main():
@@ -169,7 +170,8 @@ def main():
     else:
         cli_args = copy.copy(argv)
         cli_args[0] = "nerdctl"
-        just_like_nerdctl(cli_args)  # just like nerdctl's execution.
+        rc = just_like_nerdctl(cli_args)  # just like nerdctl's execution.
+        raise SystemExit(rc)
 
 
 if __name__ == "__main__":
