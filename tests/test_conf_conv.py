@@ -20,13 +20,10 @@ def test_conf_convert():
     output_compose_conf = test_container.to_compose_conf()
 
     with open(
-        path.join(current_dir, "resources/test-man8s-compose.yaml"), "wb"
+        path.join(current_dir, "resources/test-man8s-compose.yaml"), "w"
     ) as output_compose_file:
-        output_compose_file.write(yaml.encode(output_compose_conf))
-    with open(
-        path.join(current_dir, "resources/test-man8s-conf-reencode.yaml"), "wb"
-    ) as output_mbconf_file:
-        output_mbconf_file.write(yaml.encode(test_container.to_mbcontainer_conf()))
+        output_compose_file.write(output_compose_conf.to_compose_yaml_str())
+
     MBContainerConf.to_json_schema_file(
         path.join(current_dir, "resources/mbcontainerconf-schema.json")
     )
