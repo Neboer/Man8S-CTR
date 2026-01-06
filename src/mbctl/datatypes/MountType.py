@@ -7,3 +7,4 @@ class MountType(Enum):
     conf = "conf"
     cache = "cache"
     plugin = "plugin"
+    socket = "socket"

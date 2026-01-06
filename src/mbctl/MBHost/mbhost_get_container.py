@@ -29,8 +29,6 @@ def get_container_status(self: MBHost, container_name: str) -> MBContainerStatus
 def get_mbcontainer_conf(self: MBHost, container_name: str) -> MBContainerConf:
     """根据缓存或配置文件获得一个MBContainerConf对象。"""
     self._ensure_container_loaded(container_name)
-    if container_name in self._containers_by_name:
-        return self._containers_by_name[container_name].to_mbcontainer_conf()
     container_conf_path = self.get_container_conffile_path(container_name)
     return MBContainerConf.from_yaml_file(container_conf_path)
 

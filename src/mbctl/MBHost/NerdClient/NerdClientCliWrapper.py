@@ -17,13 +17,17 @@ def run_cmd_get_output(cmd: list[str], allow_error=False) -> tuple[str, int]:
     return proc.stdout, proc.returncode
 
 
-def run_cmd(cmd: list[str], allow_error=False) -> int:
-    proc = subprocess.run(
-        cmd,
-        text=True,
-        check=not allow_error,
-    )
-    return proc.returncode
+def run_cmd(cmd: list[str], allow_error=False) -> Optional[int]:
+    # 对长期运行的命令，比如nerdctl logs -f，不要在KeyboardInterrupt时抛出异常。
+    try:
+        proc = subprocess.run(
+            cmd,
+            text=True,
+            check=not allow_error,
+        )
+        return proc.returncode
+    except KeyboardInterrupt:
+        return None
 
 
 def nerd_ps(all: bool = False) -> list[str]:
@@ -70,5 +74,6 @@ def nerd_compose_up(compose_file_path: Optional[str] = None) -> None:
     run_cmd(cmd)
 
 
-def execute_any_command(command_args: list) -> int:
-    return run_cmd(command_args)
+def nerd_rename_container(old_name: str, new_name: str) -> None:
+    cmd = ["nerdctl", "rename", old_name, new_name]
+    run_cmd(cmd)

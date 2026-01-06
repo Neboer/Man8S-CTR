@@ -85,6 +85,7 @@ class MBContainerMount:
             MountType.conf: mount_conf.conf,
             MountType.cache: mount_conf.cache,
             MountType.plugin: mount_conf.plugin,
+            MountType.socket: mount_conf.socket
         }
         for mount_type, mounts in mount_map.items():
             for inner_path, conf in mounts.items():

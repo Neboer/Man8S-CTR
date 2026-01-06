@@ -2,12 +2,13 @@ from typing import Annotated
 import typer
 from mbctl.MBHost import MBHost
 from prettytable import PrettyTable, TableStyle
-from mbctl.MBContainer import MBContainer
+from mbctl.MBContainer import MBContainer, MBContainerStatus
 from mbctl.datatypes import MBContainerConf, MBContainerMetadataConf
+from mbctl.MBLog import mb_logger
 from sys import argv
 import copy
 
-__version__ = "v0.3"
+__version__ = "v0.4"
 
 app = typer.Typer(
     help=(
@@ -94,9 +95,9 @@ def rebuild_mbcontainer(
     container_name: Annotated[
         str, typer.Argument(help="Container name to rebuild from scratch.")
     ],
-    update: Annotated[
+    pull: Annotated[
         bool,
-        typer.Option("--update", "-u", help="Pull the latest image before recreating."),
+        typer.Option("--pull", "-p", help="Pull the latest image before recreating."),
     ] = False,
 ):
     print(f"Recreating container: {container_name}")
@@ -146,11 +147,51 @@ def nerdctl_shell(
         typer.Argument(help="Target container name to execute commands in."),
     ],
 ):
-    print(f"Executing nerdctl shell in container: {container_name}")
-    rc = host.client.execute_any_command_safely(
-        ["nerdctl", "exec", "-it", container_name, "/bin/bash"]
-    )
-    raise typer.Exit(code=rc)
+    shell_command = [
+        "sh",
+        "-c",
+        "if [ -x /bin/bash ]; then exec /bin/bash; else exec /bin/sh; fi",
+    ]
+
+    if host.get_container_status(container_name) == MBContainerStatus.running:
+        rc = host.client.execute_any_command_safely(
+            ["nerdctl", "exec", "-it", container_name] + shell_command
+        )
+        raise typer.Exit(code=rc if rc is not None else -2)
+    else:
+        # 离线模式：以代替模式启动一个配置等同，但交互运行
+        # 离线模式的原理是，启动一个临时的容器，采用和原容器一样的dhcp hostname，这样确保ygg地址和原容器一致，但命令行改为交互式shell。
+        # 至于resolve reference，
+        print(
+            f"Container '{container_name}' is not running. Starting a temporary shell container..."
+        )
+        # 首先需要retag原容器，防止新容器与原容器冲突。
+        host.client.rename_container(
+            container_name, f"{container_name}_mbctl_offline_temp"
+        )
+        # 然后创建一个临时容器，配置和原容器一样，但是命令行改为交互式shell。
+        container = host.get_mbcontainer(container_name)
+        container.extra_compose_configs.update(
+            {
+                "tty": True,
+                "stdin_open": True,
+                "entrypoint": shell_command,
+            }
+        )
+        # 程序会阻塞在此，直到用户退出shell。
+        exit_code = host.client.compose_create_container_safe(
+            container.to_compose_conf()
+        )
+        # 确保容器退出
+        host.client.stop_and_wait_container(f"{container_name}_mbctl_offline_temp")
+        # 最后删除与原容器名字相同的临时容器，并将原容器名改回来。
+        print("Cleaning up temporary shell container...")
+        host.client.force_delete_container(f"{container_name}")
+        host.client.rename_container(
+            f"{container_name}_mbctl_offline_temp", container_name
+        )
+        print("Cleanup complete.")
+        raise typer.Exit(code=exit_code)
 
 
 # execute command just like nerdctl's executing.

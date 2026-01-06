@@ -28,6 +28,7 @@ def remove_container_mounts(
             MountType.conf,
             MountType.cache,
             MountType.plugin,
+            MountType.socket
         ]
 
     target_container = self.get_mbcontainer(container_name)

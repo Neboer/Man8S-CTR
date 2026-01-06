@@ -102,6 +102,13 @@
                         "$ref": "#/$defs/MBContainerMountPointConf"
                     },
                     "default": {}
+                },
+                "socket": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/$defs/MBContainerMountPointConf"
+                    },
+                    "default": {}
                 }
             },
             "required": [],
