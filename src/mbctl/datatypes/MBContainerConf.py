@@ -34,6 +34,7 @@ class MBContainerMountConf(Struct, omit_defaults=True, forbid_unknown_fields=Tru
     conf: dict[str, MBContainerMountPointConf] = {}
     cache: dict[str, MBContainerMountPointConf] = {}
     plugin: dict[str, MBContainerMountPointConf] = {}
+    socket: dict[str, MBContainerMountPointConf] = {}
 
     def __post_init__(self):
         for mount_group in [
@@ -42,6 +43,7 @@ class MBContainerMountConf(Struct, omit_defaults=True, forbid_unknown_fields=Tru
             self.conf,
             self.cache,
             self.plugin,
+            self.socket
         ]:
             if mount_group:
                 for mount_point, conf in mount_group.items():

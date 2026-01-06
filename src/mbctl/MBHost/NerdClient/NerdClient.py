@@ -12,7 +12,7 @@ from .NerdClientCliWrapper import (
     nerd_stop_and_wait_container,
     nerd_force_delete_container,
     nerd_compose_up,
-    execute_any_command,
+    nerd_rename_container,
     run_cmd,
 )
 from .NerdContainer import NerdContainerState
@@ -51,9 +51,11 @@ class NerdClient:
         self.stop_and_wait_container(container_name)
         nerd_force_delete_container(container_name)
 
-    def execute_any_command_safely(self, command_args: list) -> int:
-        # Run any command without raising even when it fails; return its exit code.
-        return run_cmd(command_args, allow_error=True)
+    def rename_container(self, old_name: str, new_name: str) -> None:
+        nerd_rename_container(old_name, new_name)
+
+    def execute_any_command_safely(self, command_args: list) -> Optional[int]:
+        return run_cmd(command_args, allow_error=False)
 
     # 这个函数不支持在远程执行
     def compose_create_container(self, compose_conf: ComposeConf):
@@ -61,5 +63,15 @@ class NerdClient:
             with change_cwd(tmpdir):
                 with open("compose.yaml", "w", encoding="utf-8") as compose_conf_file:
                     compose_conf_file.write(compose_conf.to_compose_yaml_str())
-                
                 nerd_compose_up()
+
+    # 不会抛出错误，只会返回退出码。
+    def compose_create_container_safe(self, compose_conf: ComposeConf) -> int:
+        with TemporaryDirectory() as tmpdir:
+            with change_cwd(tmpdir):
+                with open("compose.yaml", "w", encoding="utf-8") as compose_conf_file:
+                    compose_conf_file.write(compose_conf.to_compose_yaml_str())
+                return_code = self.execute_any_command_safely(
+                    ["nerdctl", "compose", "-f", "compose.yaml", "up", "-d"]
+                )
+                return return_code if return_code is not None else -2
