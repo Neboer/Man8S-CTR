@@ -77,3 +77,20 @@ def nerd_compose_up(compose_file_path: Optional[str] = None) -> None:
 def nerd_rename_container(old_name: str, new_name: str) -> None:
     cmd = ["nerdctl", "rename", old_name, new_name]
     run_cmd(cmd)
+
+def nerd_get_container_pid(container_name: str) -> str:
+    # nerdctl inspect -f '{{.State.Pid}}' container_name
+
+    result = subprocess.run(
+        [
+            "nerdctl",
+            "inspect",
+            "-f",
+            "{{.State.Pid}}",
+            container_name,
+        ],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    return result.stdout.strip()

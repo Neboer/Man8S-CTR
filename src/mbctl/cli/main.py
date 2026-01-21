@@ -8,7 +8,7 @@ from mbctl.MBLog import mb_logger
 from sys import argv
 import copy
 
-__version__ = "v0.4"
+__version__ = "v0.5"
 
 app = typer.Typer(
     help=(
@@ -193,6 +193,34 @@ def nerdctl_shell(
         print("Cleanup complete.")
         raise typer.Exit(code=exit_code)
 
+
+@app.command(
+    "netshell",
+    help="Execute commands just like nerdctl's executing, default to bash shell.",
+)
+def nerdctl_netshell(
+    container_name: Annotated[
+        str,
+        typer.Argument(help="Target container name to execute commands in."),
+    ],
+):
+    # 只进入容器的网络名字空间，使用nsenter命令，不进入容器的挂载点。
+    if host.get_container_status(container_name) == MBContainerStatus.running:
+        pid = host.client.get_container_pid(container_name)
+        nsenter_command = [
+            "nsenter",
+            "-t",
+            str(pid),
+            "-n",
+            "bash",
+        ]
+        print(f"Entering network namespace of container '{container_name}' (PID: {pid})...")
+        rc = host.client.execute_any_command_safely(nsenter_command)
+        print(f"Exited network namespace of container '{container_name}'.")
+        raise typer.Exit(code=rc if rc is not None else -2)
+    else:
+        print(f"Container '{container_name}' is not running. Cannot enter network namespace.")
+        raise typer.Exit(code=-2)
 
 # execute command just like nerdctl's executing.
 def just_like_nerdctl(commands):
