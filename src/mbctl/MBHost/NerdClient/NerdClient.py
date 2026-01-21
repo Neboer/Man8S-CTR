@@ -13,10 +13,12 @@ from .NerdClientCliWrapper import (
     nerd_force_delete_container,
     nerd_compose_up,
     nerd_rename_container,
+    nerd_get_container_pid,
     run_cmd,
 )
 from .NerdContainer import NerdContainerState
 from enum import Enum
+import subprocess
 
 
 # 这代表与nerdctl/containerd交互的底层抽象功能。
@@ -56,6 +58,9 @@ class NerdClient:
 
     def execute_any_command_safely(self, command_args: list) -> Optional[int]:
         return run_cmd(command_args, allow_error=False)
+
+    def get_container_pid(self, container_name: str) -> str:
+        return nerd_get_container_pid(container_name)
 
     # 这个函数不支持在远程执行
     def compose_create_container(self, compose_conf: ComposeConf):
