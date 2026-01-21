@@ -35,5 +35,4 @@ services:
       test_container.man8s.local: 300:6b9f:cca2:a583:a185:8936:da18:75a5
     user: 10001:10001
 networks:
-  man8yggbr:
-    external: true
+  man8yggbr: {}

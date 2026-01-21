@@ -8,7 +8,7 @@ from mbctl.MBLog import mb_logger
 from sys import argv
 import copy
 
-__version__ = "v0.5"
+__version__ = "v0.6"
 
 app = typer.Typer(
     help=(
@@ -170,8 +170,8 @@ def nerdctl_shell(
             container_name, f"{container_name}_mbctl_offline_temp"
         )
         # 然后创建一个临时容器，配置和原容器一样，但是命令行改为交互式shell。
-        container = host.get_mbcontainer(container_name)
-        container.extra_compose_configs.update(
+        temp_container = host.get_mbcontainer(container_name)
+        temp_container.extra_compose_configs.update(
             {
                 "tty": True,
                 "stdin_open": True,
@@ -180,7 +180,7 @@ def nerdctl_shell(
         )
         # 程序会阻塞在此，直到用户退出shell。
         exit_code = host.client.compose_create_container_safe(
-            container.to_compose_conf()
+            temp_container.to_compose_conf()
         )
         # 确保容器退出
         host.client.stop_and_wait_container(f"{container_name}_mbctl_offline_temp")

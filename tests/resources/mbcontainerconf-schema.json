@@ -1,182 +1,225 @@
 {
-    "$ref": "#/$defs/MBContainerConf",
-    "$defs": {
-        "MBContainerConf": {
-            "title": "MBContainerConf",
-            "type": "object",
-            "properties": {
-                "image": {
-                    "type": "string"
-                },
-                "enable_ygg": {
-                    "type": "boolean",
-                    "default": true
-                },
-                "autostart": {
-                    "type": "boolean",
-                    "default": true
-                },
-                "require": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    },
-                    "default": []
-                },
-                "mount": {
-                    "$ref": "#/$defs/MBContainerMountConf"
-                },
-                "port": {
-                    "type": "array",
-                    "items": {
-                        "type": "array"
-                    },
-                    "default": []
-                },
-                "environment": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "string"
-                    },
-                    "default": {}
-                },
-                "metadata": {
-                    "$ref": "#/$defs/MBContainerMetadataConf"
-                },
-                "local_access": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    },
-                    "default": []
-                },
-                "dns": {
-                    "type": "string",
-                    "default": "host"
-                },
-                "extra_compose_configs": {
-                    "type": "object",
-                    "default": {}
-                }
-            },
-            "required": [
-                "image"
-            ],
-            "additionalProperties": false
+  "$defs": {
+    "MBContainerMetadataConf": {
+      "additionalProperties": false,
+      "properties": {
+        "create_time": {
+          "format": "date-time",
+          "title": "Create Time",
+          "type": "string"
         },
-        "MBContainerMountConf": {
-            "title": "MBContainerMountConf",
-            "type": "object",
-            "properties": {
-                "data": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "$ref": "#/$defs/MBContainerMountPointConf"
-                    },
-                    "default": {}
-                },
-                "log": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "$ref": "#/$defs/MBContainerMountPointConf"
-                    },
-                    "default": {}
-                },
-                "conf": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "$ref": "#/$defs/MBContainerMountPointConf"
-                    },
-                    "default": {}
-                },
-                "cache": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "$ref": "#/$defs/MBContainerMountPointConf"
-                    },
-                    "default": {}
-                },
-                "plugin": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "$ref": "#/$defs/MBContainerMountPointConf"
-                    },
-                    "default": {}
-                },
-                "socket": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "$ref": "#/$defs/MBContainerMountPointConf"
-                    },
-                    "default": {}
-                }
-            },
-            "required": [],
-            "additionalProperties": false
+        "last_update_time": {
+          "format": "date-time",
+          "title": "Last Update Time",
+          "type": "string"
         },
-        "MBContainerMountPointConf": {
-            "title": "MBContainerMountPointConf",
-            "type": "object",
-            "properties": {
-                "owner": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
-                "source": {
-                    "anyOf": [
-                        {
-                            "type": "string"
-                        },
-                        {
-                            "type": "null"
-                        }
-                    ],
-                    "default": null
-                },
-                "file": {
-                    "type": "boolean",
-                    "default": false
-                },
-                "perm": {
-                    "anyOf": [
-                        {
-                            "type": "string"
-                        },
-                        {
-                            "type": "null"
-                        }
-                    ],
-                    "default": null
-                }
+        "author": {
+          "anyOf": [
+            {
+              "type": "string"
             },
-            "required": [],
-            "additionalProperties": false
-        },
-        "MBContainerMetadataConf": {
-            "title": "MBContainerMetadataConf",
-            "type": "object",
-            "properties": {
-                "create_time": {
-                    "type": "string"
-                },
-                "last_update_time": {
-                    "type": "string"
-                },
-                "author": {
-                    "anyOf": [
-                        {
-                            "type": "string"
-                        },
-                        {
-                            "type": "null"
-                        }
-                    ],
-                    "default": ""
-                }
-            },
-            "required": []
+            {
+              "type": "null"
+            }
+          ],
+          "default": "",
+          "title": "Author"
         }
+      },
+      "title": "MBContainerMetadataConf",
+      "type": "object"
+    },
+    "MBContainerMountConf": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "additionalProperties": {
+            "$ref": "#/$defs/MBContainerMountPointConf"
+          },
+          "title": "Data",
+          "type": "object"
+        },
+        "log": {
+          "additionalProperties": {
+            "$ref": "#/$defs/MBContainerMountPointConf"
+          },
+          "title": "Log",
+          "type": "object"
+        },
+        "conf": {
+          "additionalProperties": {
+            "$ref": "#/$defs/MBContainerMountPointConf"
+          },
+          "title": "Conf",
+          "type": "object"
+        },
+        "cache": {
+          "additionalProperties": {
+            "$ref": "#/$defs/MBContainerMountPointConf"
+          },
+          "title": "Cache",
+          "type": "object"
+        },
+        "plugin": {
+          "additionalProperties": {
+            "$ref": "#/$defs/MBContainerMountPointConf"
+          },
+          "title": "Plugin",
+          "type": "object"
+        },
+        "socket": {
+          "additionalProperties": {
+            "$ref": "#/$defs/MBContainerMountPointConf"
+          },
+          "title": "Socket",
+          "type": "object"
+        }
+      },
+      "title": "MBContainerMountConf",
+      "type": "object"
+    },
+    "MBContainerMountPointConf": {
+      "additionalProperties": false,
+      "properties": {
+        "owner": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Owner",
+          "type": "array"
+        },
+        "source": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source"
+        },
+        "file": {
+          "default": false,
+          "title": "File",
+          "type": "boolean"
+        },
+        "perm": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Perm"
+        }
+      },
+      "title": "MBContainerMountPointConf",
+      "type": "object"
+    },
+    "MBPortPiece": {
+      "anyOf": [
+        {
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "type": "array"
+        },
+        {
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "boolean"
+            }
+          ],
+          "type": "array"
+        }
+      ]
     }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "image": {
+      "title": "Image",
+      "type": "string"
+    },
+    "enable_ygg": {
+      "default": true,
+      "title": "Enable Ygg",
+      "type": "boolean"
+    },
+    "autostart": {
+      "default": true,
+      "title": "Autostart",
+      "type": "boolean"
+    },
+    "require": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Require",
+      "type": "array"
+    },
+    "mount": {
+      "$ref": "#/$defs/MBContainerMountConf"
+    },
+    "port": {
+      "items": {
+        "$ref": "#/$defs/MBPortPiece"
+      },
+      "title": "Port",
+      "type": "array"
+    },
+    "environment": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Environment",
+      "type": "object"
+    },
+    "metadata": {
+      "$ref": "#/$defs/MBContainerMetadataConf"
+    },
+    "local_access": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Local Access",
+      "type": "array",
+      "uniqueItems": true
+    },
+    "dns": {
+      "default": "host",
+      "title": "Dns",
+      "type": "string"
+    },
+    "extra_compose_configs": {
+      "additionalProperties": true,
+      "title": "Extra Compose Configs",
+      "type": "object"
+    }
+  },
+  "required": [
+    "image"
+  ],
+  "title": "MBContainerConf",
+  "type": "object"
 }
