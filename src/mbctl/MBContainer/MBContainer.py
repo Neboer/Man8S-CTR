@@ -101,5 +101,5 @@ class MBContainer:
         return ComposeConf(
             extra_compose_configs=self.extra_compose_configs,
             services={self.name: compose_service},
-            networks={network_name: ComposeNetworkConfig()}
+            networks={network_name: ComposeNetworkConfig(external=True)}
         )

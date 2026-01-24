@@ -24,7 +24,7 @@ class ComposeServiceConf(BaseModel):
 class ComposeNetworkConfig(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    external: bool = Field(default=True)
+    external: bool
 
 
 class ComposeConf(BaseModel):

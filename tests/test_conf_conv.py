@@ -2,10 +2,8 @@ from mbctl.datatypes import ComposeConf, MBContainerConf
 from mbctl.MBContainer import MBContainer
 from os import path
 from mbctl.MBHost import MBHost
-from mbctl.cli.main import list_all_mbcontainers
 
 current_dir = path.dirname(__file__)
-
 
 def test_conf_convert():
     test_mbcontainer_conf = MBContainerConf.from_yaml_file(
@@ -29,6 +27,6 @@ def test_conf_convert():
 
 
 def test_container_list():
-    host = MBHost()
-    containers = list_all_mbcontainers()
-    print("Containers on host:", containers)
+    host = MBHost(yggaddr="200:64f7:cae4:9395:44f1:455d:de99:e7", yggprefix="300:64f7:cae4:9395::/64")
+    host.list_all_mbcontainer_names()
+
