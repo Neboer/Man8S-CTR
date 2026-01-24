@@ -30,9 +30,10 @@ services:
       RUSTFS_OBS_LOG_DIRECTORY: /log/
     restart: unless-stopped
     extra_hosts:
-      test-nginx-1.man8s.local: 300:6b9f:cca2:a583:553f:78f3:d4bf:fd73
       my-dns-server.man8s.local: 300:6b9f:cca2:a583:32a6:11f4:5775:e954
       test_container.man8s.local: 300:6b9f:cca2:a583:a185:8936:da18:75a5
+      test-nginx-1.man8s.local: 300:6b9f:cca2:a583:553f:78f3:d4bf:fd73
     user: 10001:10001
 networks:
-  man8yggbr: {}
+  man8yggbr:
+    external: true
