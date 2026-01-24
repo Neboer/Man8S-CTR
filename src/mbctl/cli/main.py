@@ -8,7 +8,7 @@ from mbctl.MBLog import mb_logger
 from sys import argv
 import copy
 
-__version__ = "v0.61"
+__version__ = "v0.6.1"
 
 app = typer.Typer(
     help=(
