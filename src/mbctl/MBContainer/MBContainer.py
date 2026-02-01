@@ -25,7 +25,6 @@ class MBContainer:
         container_name: str,
         container_conf: MBContainerConf,
         host_yggdrasil_prefix: str,
-        status: MBContainerStatus = MBContainerStatus.unknown,
     ):
         self.name = container_name
         self.image = container_conf.image
@@ -36,7 +35,6 @@ class MBContainer:
         self.port = MBContainerPortMap(container_conf.port)
         self.environment = container_conf.environment
         self.metadata = MBContainerMetadata(container_conf.metadata)
-        self.status = status
         self.resolved = False  # 是否已经完成了解析引用
         # self.local_access 是额外的本地访问主机名列表，不做校验，直接生成对应ygg地址即可。
         self.local_access = container_conf.local_access
