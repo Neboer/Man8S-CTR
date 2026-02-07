@@ -84,7 +84,7 @@ class MBContainerMount:
             MountType.conf: mount_conf.conf,
             MountType.cache: mount_conf.cache,
             MountType.plugin: mount_conf.plugin,
-            MountType.socket: mount_conf.socket
+            MountType.socket: mount_conf.socket,
         }
         for mount_type, mounts in mount_map.items():
             for inner_path, conf in mounts.items():
@@ -127,7 +127,9 @@ class MBContainerMount:
                 )
         return mount_points
 
-    def resolve_references(self, reference_containers: Mapping[str, MBContainer]) -> None:
+    def resolve_references(
+        self, reference_containers: Mapping[str, MBContainer]
+    ) -> None:
         for entry in self.mount_points:
             if entry.source.is_reference:
                 if (
@@ -191,3 +193,9 @@ class MBContainerMount:
                 file=entry.file,
             )
         return mount_conf
+
+    def to_mount_short_str_list(self) -> list[str]:
+        lines = []
+        for entry in self.mount_points:
+            lines.append(entry.target)
+        return lines

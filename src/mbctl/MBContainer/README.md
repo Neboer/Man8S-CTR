@@ -47,3 +47,17 @@ mount:
 
 如果，一个容器的mount point中，其source值为"certbot:/cert/neboer.site"，则会自动将certbot容器中，同类型mount point的/cert/neboer.site挂载点的源路径bind到容器中，比如 /var/lib/man8s/data/certbot/cert/neboer.site 这个路径。
 
+## Docker IPv6 Proxy
+
+我们使用一种很特别的办法配置IPv6代理。
+
+```bash
+nerdctl run -d \
+  --name test-proxy \
+  --restart unless-stopped \
+  --network container:test-game \
+  registry.neboer.site/alpine/socat \
+  -d -d -ly -lf /dev/stdout \
+  TCP6-LISTEN:8888,fork,reuseaddr \
+  TCP4:127.0.0.1:7777
+```

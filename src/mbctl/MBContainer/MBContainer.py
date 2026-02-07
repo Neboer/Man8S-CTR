@@ -65,7 +65,7 @@ class MBContainer:
         Convert the loaded MBContainerConf into a ComposeConf instance.
         """
         network_name = (
-            mb_config.network.withygg if self.enable_ygg else mb_config.network.noygg
+            mb_config.network_name.withygg if self.enable_ygg else mb_config.network_name.noygg
         )
 
         restart = "unless-stopped" if self.autostart else "no"
