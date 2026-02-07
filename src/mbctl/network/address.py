@@ -1,4 +1,3 @@
-import argparse
 import ipaddress
 from .string_to_v6suffix import string_to_v6suffix
 
