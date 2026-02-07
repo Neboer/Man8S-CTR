@@ -16,8 +16,10 @@ from .shell_into_container import online_shell, network_shell
 from .run_container import run_container
 
 from mbctl.MBConfig import mb_config
+from mbctl.network.address import get_ipv6_addr_prefix
 
 import copy
+import os
 
 __version__ = "v0.7.0-alpha.1"
 
@@ -55,13 +57,13 @@ def main_callback(
     return version
 
 
-client = NerdClient()
+client = NerdClient()  # 这个client一定是本机，其实这个client的设计非常多余。
 
 
 def load_compose_configs() -> dict[str, MBContainer]:
     """加载所有的 MBContainer 配置文件，返回 MBContainerTree 对象。"""
     mb_logger.debug("Loading MBContainer configurations...")
-    containers, _ = load_mbcontainer_config(mb_config.yggaddr)
+    containers, _ = load_mbcontainer_config(get_ipv6_addr_prefix(mb_config.yggaddr))
     mb_logger.debug(f"Loaded {len(containers)} MBContainer configurations.")
     return containers
 
@@ -138,11 +140,11 @@ def nerdctl_shell(
         online_shell(client, container_name)
 
 
-# execute command just like nerdctl's executing.
+# 就像nerdctl一样执行命令，这里直接使用 os.execvp 来替换当前进程。
 def just_like_nerdctl(commands: list[str]) -> int:
-    output, return_code = client.execute_nerdctl_safe(commands)
-    print(output, end="")
-    return return_code
+    mb_logger.debug(f"Proxying command to nerdctl: {' '.join(commands)}")
+    os.execvp("nerdctl", commands)
+    return 0  # 这一行实际上不会被执行到。
 
 
 def main():
