@@ -49,7 +49,7 @@ class NerdContainerInfo(BaseModel):
         return values
 
     class Config:
-        allow_population_by_field_name = True
+        validate_by_name = True
 
 
 _DURATION_RE = re.compile(r"(?P<num>\d+)\s+(?P<unit>second|seconds|minute|minutes|hour|hours|day|days|week|weeks|month|months|year|years)")
