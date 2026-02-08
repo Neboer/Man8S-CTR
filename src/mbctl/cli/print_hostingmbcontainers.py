@@ -27,7 +27,7 @@ def print_full_hosting_mbcontainers(
                 hc.mbcontainer.name,
                 hc.info.id,
                 hc.mbcontainer.image,
-                hc.info.status,
+                str(hc.info.status_info),
                 "Yes" if hc.mbcontainer.autostart else "No",
                 hc.mbcontainer.yggdrasil_addr or "N/A",
                 ", ".join(hc.info.ports) if hc.info.ports else "None",
@@ -75,7 +75,7 @@ def print_short_hosting_mbcontainers(
             [
                 hc.mbcontainer.name,
                 short_image_str,
-                hc.info.status if hc.info is not None else "Never",
+                str(hc.info.status_info) if hc.info is not None else "Never",
                 "Yes" if hc.mbcontainer.autostart else "No",
                 hc.mbcontainer.yggdrasil_addr or "N/A",
             ]
