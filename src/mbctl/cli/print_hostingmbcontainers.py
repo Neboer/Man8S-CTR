@@ -7,6 +7,7 @@ def print_full_hosting_mbcontainers(
 ) -> None:
     """打印完整的正在运行的 Man8S 容器信息表。"""
     table = PrettyTable()
+    table.align = "l"
     table.field_names = [
         "Container",
         "ID",
@@ -54,6 +55,7 @@ def print_short_hosting_mbcontainers(
 ) -> None:
     """打印简略的正在运行的 Man8S 容器信息表。"""
     table = PrettyTable()
+    table.align = "l"
     table.field_names = [
         "Container",
         "Image",
