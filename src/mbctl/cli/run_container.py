@@ -13,7 +13,7 @@ from mbctl.cli.HostingMBContainer import HostingMBContainer
 def run_container(mbcontainer: MBContainer, nerd_client: NerdClient, pull: bool = False) -> None:
     """启动一个 Man8S 容器，要求必须是一个全新的容器。"""
     # 1. 确保挂载点目录存在。
-    for mount_entry in mbcontainer.mount.mount_points:
+    for mount_entry in mbcontainer.mount.entries:
         if not mount_entry.file:  # 只创建目录挂载点，跳过文件挂载点。
             realize_dir_mount_conf(
                 mount_entry.source.real_mount_source_path,

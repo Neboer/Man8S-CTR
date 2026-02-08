@@ -1,9 +1,9 @@
 import os
 from mbctl.MBContainer.MBContainerMount import MBContainerMountEntry
-
+from mbctl.MBLog import mb_logger
 
 def realize_dir_mount_conf(
-    mount_dir: str, uid: int = 0, gid: int = 0, perm: str = "755"
+    mount_dir: str, uid: int, gid: int, perm: str
 ) -> None:
     """Create mount directory with specified owner and permission."""
 

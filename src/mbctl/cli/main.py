@@ -3,6 +3,7 @@ import typer
 from mbctl.NerdClient.NerdClient import NerdClient
 from mbctl.NerdClient.NerdContainerInfo import NerdContainerInfo
 from mbctl.MBHost.LoadMBContainers import load_mbcontainer_config
+from mbctl.MBHost.MakeMountdirs import prepare_mount_entry
 from mbctl.MBContainer import MBContainer
 from mbctl.MBLog import mb_logger
 from sys import argv
@@ -91,6 +92,8 @@ def build_mbcontainer(
 ):
     print(f"Running container: {container_name}")
     containers = load_compose_configs()
+    for e in containers[container_name].mount.entries:
+        prepare_mount_entry(e)
     client.compose_create_container(
         containers[container_name].to_compose_conf().to_compose_dict(), pull=pull
     )
