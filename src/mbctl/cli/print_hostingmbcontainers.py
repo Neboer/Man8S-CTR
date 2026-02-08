@@ -6,7 +6,7 @@ def print_full_hosting_mbcontainers(
     hosting_containers: dict[str, HostingMBContainer],
 ) -> None:
     """打印完整的正在运行的 Man8S 容器信息表。"""
-    table = PrettyTable()
+    table = PrettyTable(padding_width=1)
     table.align = "l"
     table.field_names = [
         "Container",
@@ -80,4 +80,5 @@ def print_short_hosting_mbcontainers(
                 hc.mbcontainer.yggdrasil_addr or "N/A",
             ]
         )
+    table.set_style(TableStyle.PLAIN_COLUMNS)
     print(table)
