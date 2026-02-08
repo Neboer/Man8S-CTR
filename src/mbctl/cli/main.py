@@ -150,7 +150,7 @@ def nerdctl_shell(
 
 
 # 就像nerdctl一样执行命令，这里直接使用 os.execvp 来替换当前进程。
-def just_like_nerdctl(commands: list[str]) -> int:
+def just_like_nerdctl(commands: list[str]) -> None:
     # mb_logger.debug(f"Proxying command to nerdctl: {' '.join(commands)}")
     client.next_command_will_execvp()
     client.execute(commands, safe=False)
@@ -168,8 +168,7 @@ def main():
     else:
         cli_args = copy.copy(argv)
         cli_args[0] = "nerdctl"
-        rc = just_like_nerdctl(cli_args)  # just like nerdctl's execution.
-        raise SystemExit(rc)
+        just_like_nerdctl(cli_args)  # just like nerdctl's execution.
 
 
 if __name__ == "__main__":
