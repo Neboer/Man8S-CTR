@@ -42,11 +42,10 @@ class NerdContainerInfo(BaseModel):
     status_info: Optional[NerdContainerStatusInfo] = None
 
     @model_validator(mode="after")
-    def _build_status_info(cls, values):
-        status = values.get("status")
-        if status and not values.get("status_info"):
-            values["status_info"] = parse_status_info(status)
-        return values
+    def _build_status_info(self):
+        if self.status and not self.status_info:
+            self.status_info = parse_status_info(self.status)
+        return self
 
     class Config:
         validate_by_name = True

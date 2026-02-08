@@ -12,7 +12,7 @@ from .print_hostingmbcontainers import (
     print_full_hosting_mbcontainers,
     print_short_hosting_mbcontainers,
 )
-from .shell_into_container import online_shell, network_shell
+from .be_shell import online_shell, network_shell
 from .run_container import run_container
 
 from mbctl.MBConfig import mb_config
