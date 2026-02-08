@@ -14,12 +14,12 @@ shell_command = [
 # 安全的执行一个shell
 # 这种方法要求容器必须正在运行，如果你希望在容器主命令不运行时执行shell，只需要更新容器主命令启动容器再进入shell。
 def online_shell(nerd_client: NerdClient, container_name: str) -> None:
-    execvp_host_command(
-        ["nerdctl", "exec", "-it", container_name] + shell_command,
-    )
+    nerd_client.next_command_will_execvp()
+    nerd_client.shell_execute(container_name, shell_command)
 
 
 # 执行一个网络shell，即使用容器的网络名字空间启动主机中的bash，这个要求通过主机执行命令。
+# 这是一个很特别的命令，不能通过nerd_client.execute来执行，因为它需要替换当前进程，并且还需要在主机环境里执行。
 def network_shell(nerd_client: NerdClient, container: MBContainer) -> None:
     # 首先获取容器的PID
     pid = nerd_client.get_container_pid(container.name)
