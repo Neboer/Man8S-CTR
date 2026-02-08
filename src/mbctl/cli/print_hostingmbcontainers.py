@@ -78,3 +78,4 @@ def print_short_hosting_mbcontainers(
                 hc.mbcontainer.yggdrasil_addr or "N/A",
             ]
         )
+    print(table)
