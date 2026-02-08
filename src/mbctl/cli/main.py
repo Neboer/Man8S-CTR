@@ -89,6 +89,10 @@ def build_mbcontainer(
         bool,
         typer.Option("--pull", "-p", help="Pull the latest image before recreating."),
     ] = False,
+    detach: Annotated[
+        bool,
+        typer.Option("--detach", "-d", help="Don't show log output, just run."),
+    ] = False,
 ):
     print(f"Running container: {container_name}")
     containers = load_compose_configs()
@@ -97,7 +101,9 @@ def build_mbcontainer(
     client.compose_create_container(
         containers[container_name].to_compose_conf().to_compose_dict(), pull=pull
     )
-
+    if not detach:
+        client.next_command_will_execvp()
+        client.monitor_container_logs(container_name)
 
 # mbctl list
 @app.command("list", help="List all managed containers and their runtime details.")
@@ -145,9 +151,9 @@ def nerdctl_shell(
 
 # 就像nerdctl一样执行命令，这里直接使用 os.execvp 来替换当前进程。
 def just_like_nerdctl(commands: list[str]) -> int:
-    mb_logger.debug(f"Proxying command to nerdctl: {' '.join(commands)}")
-    os.execvp("nerdctl", commands)
-    return 0  # 这一行实际上不会被执行到。
+    # mb_logger.debug(f"Proxying command to nerdctl: {' '.join(commands)}")
+    client.next_command_will_execvp()
+    client.execute(commands, safe=False)
 
 
 def main():
