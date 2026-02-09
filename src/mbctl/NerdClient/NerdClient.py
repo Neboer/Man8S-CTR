@@ -19,7 +19,7 @@ class NerdClient(CommandExecutor):
         return parse_nerdctl_ps_json_lines(output)
 
     def compose_create_container(
-        self, compose_conf: dict, pull=False, no_failure: bool = False
+        self, project_name: str, compose_conf: dict, pull=False, no_failure: bool = False
     ) -> int:
         """使用 nerdctl compose 创建并运行容器。"""
         import tempfile
@@ -34,6 +34,8 @@ class NerdClient(CommandExecutor):
                 "compose",
                 "-f",
                 tmpfile.name,
+                "--profile",
+                project_name,
                 "up",
                 "-d",
                 "--force-recreate",

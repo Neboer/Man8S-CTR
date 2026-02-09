@@ -14,8 +14,6 @@ from .print_hostingmbcontainers import (
     print_short_hosting_mbcontainers,
 )
 from .be_shell import online_shell, network_shell
-from .run_container import run_container
-
 from mbctl.MBConfig import mb_config
 from mbctl.network.address import get_ipv6_addr_prefix
 
@@ -99,11 +97,14 @@ def build_mbcontainer(
     for e in containers[container_name].mount.entries:
         prepare_mount_entry(e)
     client.compose_create_container(
-        containers[container_name].to_compose_conf().to_compose_dict(), pull=pull
+        container_name,
+        containers[container_name].to_compose_conf().to_compose_dict(),
+        pull=pull,
     )
     if not detach:
         client.next_command_will_execvp()
         client.monitor_container_logs(container_name)
+
 
 # mbctl list
 @app.command("list", help="List all managed containers and their runtime details.")
