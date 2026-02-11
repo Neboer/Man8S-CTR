@@ -96,8 +96,8 @@ def build_mbcontainer(
     containers = load_compose_configs()
     for e in containers[container_name].mount.entries:
         prepare_mount_entry(e)
-    client.stop_and_wait_container_safely(container_name)
-    client.remove_container(container_name, safe=True)
+    client.stop_and_wait_container_safely(container_name, hide=True)
+    client.remove_container(container_name, safe=True, hide=True)
     client.compose_create_container(
         container_name,
         containers[container_name].to_compose_conf().to_compose_dict(),

@@ -85,17 +85,22 @@ class NerdClient(CommandExecutor):
         self.execute(["nerdctl", "stop", container_name])
         self.execute(["nerdctl", "wait", container_name])
 
-    def stop_and_wait_container_safely(self, container_name: str) -> int:
+    def stop_and_wait_container_safely(self, container_name: str, hide: bool = False) -> int:
         """安全地停止指定名称的容器，并等待其完全停止，返回命令的退出码。如果容器已经退出了，也不会报错。"""
-        _, code = self.execute(["nerdctl", "stop", container_name], safe=True)
+        stdout_conf = "pipe" if hide else "print"
+        stderr_conf = "pipe" if hide else "print"
+        _, code = self.execute(["nerdctl", "stop", container_name], safe=True, stdout=stdout_conf, stderr=stderr_conf)
         if code != 0:
             return code
-        _, code = self.execute(["nerdctl", "wait", container_name], safe=True)
+        _, code = self.execute(["nerdctl", "wait", container_name], safe=True, stdout=stdout_conf, stderr=stderr_conf)
         return code
 
-    def remove_container(self, container_name: str, safe: bool = False) -> None:
+    # hide 表示是否隐藏命令的输出。
+    def remove_container(self, container_name: str, safe: bool = False, hide: bool = False) -> None:
         """删除指定名称的容器。"""
-        self.execute(["nerdctl", "rm", "-f", container_name], safe=safe)
+        stdout_conf = "pipe" if hide else "print"
+        stderr_conf = "pipe" if hide else "print"
+        self.execute(["nerdctl", "rm", "-f", container_name], safe=safe, stdout=stdout_conf, stderr=stderr_conf)
 
     def shell_execute(
         self,
