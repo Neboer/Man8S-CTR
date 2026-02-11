@@ -17,8 +17,6 @@ from .be_shell import online_shell, network_shell
 from mbctl.MBConfig import mb_config
 from mbctl.network.address import get_ipv6_addr_prefix
 
-from uuid import uuid4
-
 import copy
 import os
 
@@ -98,8 +96,10 @@ def build_mbcontainer(
     containers = load_compose_configs()
     for e in containers[container_name].mount.entries:
         prepare_mount_entry(e)
+    client.stop_and_wait_container_safely(container_name)
+    client.remove_container(container_name, safe=True)
     client.compose_create_container(
-        uuid4().hex,
+        container_name,
         containers[container_name].to_compose_conf().to_compose_dict(),
         pull=pull,
     )

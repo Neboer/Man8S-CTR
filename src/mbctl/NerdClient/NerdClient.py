@@ -93,9 +93,9 @@ class NerdClient(CommandExecutor):
         _, code = self.execute(["nerdctl", "wait", container_name], safe=True)
         return code
 
-    def remove_container(self, container_name: str) -> None:
+    def remove_container(self, container_name: str, safe: bool = False) -> None:
         """删除指定名称的容器。"""
-        self.execute(["nerdctl", "rm", "-f", container_name])
+        self.execute(["nerdctl", "rm", "-f", container_name], safe=safe)
 
     def shell_execute(
         self,
