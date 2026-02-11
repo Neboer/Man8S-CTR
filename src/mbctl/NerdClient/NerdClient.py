@@ -34,7 +34,7 @@ class NerdClient(CommandExecutor):
                 "compose",
                 "-f",
                 tmpfile.name,
-                "--profile",
+                "--project-name",
                 project_name,
                 "up",
                 "-d",
