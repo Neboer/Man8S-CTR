@@ -184,6 +184,7 @@ class MBContainerMount:
             MountType.conf: mount_conf.conf,
             MountType.cache: mount_conf.cache,
             MountType.plugin: mount_conf.plugin,
+            MountType.socket: mount_conf.socket,
         }
         for entry in self.entries:
             mount_map[entry.type][entry.target] = MBContainerMountPointConf(
