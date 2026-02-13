@@ -6,9 +6,9 @@ def get_logger() -> Logger:
 
     logger = logging.getLogger("mbctl")
     if not logger.hasHandlers():
-        logger.setLevel(logging.DEBUG)
+        logger.setLevel(logging.INFO)
         ch = logging.StreamHandler()
-        ch.setLevel(logging.DEBUG)
+        ch.setLevel(logging.INFO)
         formatter = logging.Formatter(
             "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
         )

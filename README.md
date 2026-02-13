@@ -10,3 +10,6 @@ Another container orchestration system. Man8S use yggdrasil as VPN networking, u
 
 in this version, we have these limitations:
 - can't limit container's network connection.
+
+## IPv4 forwarding
+
