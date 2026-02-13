@@ -70,7 +70,7 @@ class MBContainerMount:
     ):
         self.container_name = container_name
         # host, inner
-        self.mount_points: list[MBContainerMountEntry] = self._build_mount_points(
+        self.entries: list[MBContainerMountEntry] = self._build_mount_points(
             mount_conf
         )
 
@@ -84,7 +84,7 @@ class MBContainerMount:
             MountType.conf: mount_conf.conf,
             MountType.cache: mount_conf.cache,
             MountType.plugin: mount_conf.plugin,
-            MountType.socket: mount_conf.socket
+            MountType.socket: mount_conf.socket,
         }
         for mount_type, mounts in mount_map.items():
             for inner_path, conf in mounts.items():
@@ -127,8 +127,10 @@ class MBContainerMount:
                 )
         return mount_points
 
-    def resolve_references(self, reference_containers: Mapping[str, MBContainer]) -> None:
-        for entry in self.mount_points:
+    def resolve_references(
+        self, reference_containers: Mapping[str, MBContainer]
+    ) -> None:
+        for entry in self.entries:
             if entry.source.is_reference:
                 if (
                     entry.source.referenced_container_name is None
@@ -164,7 +166,7 @@ class MBContainerMount:
         return ref_container
 
     def get_mount_entry_by_target(self, target_path: str) -> MBContainerMountEntry:
-        entry = next((e for e in self.mount_points if e.target == target_path), None)
+        entry = next((e for e in self.entries if e.target == target_path), None)
         if entry is None:
             raise ValueError(
                 f"Mount entry with target path '{target_path}' not found in container '{self.container_name}'."
@@ -172,7 +174,7 @@ class MBContainerMount:
         return entry
 
     def to_compose_volumes(self) -> list[str]:
-        return [entry.to_docker_mount_str() for entry in self.mount_points]
+        return [entry.to_docker_mount_str() for entry in self.entries]
 
     def to_mbcontainer_mount_conf(self) -> MBContainerMountConf:
         mount_conf = MBContainerMountConf()
@@ -183,7 +185,7 @@ class MBContainerMount:
             MountType.cache: mount_conf.cache,
             MountType.plugin: mount_conf.plugin,
         }
-        for entry in self.mount_points:
+        for entry in self.entries:
             mount_map[entry.type][entry.target] = MBContainerMountPointConf(
                 owner=entry.owner,
                 perm=entry.perm,
@@ -191,3 +193,9 @@ class MBContainerMount:
                 file=entry.file,
             )
         return mount_conf
+
+    def to_mount_short_str_list(self) -> list[str]:
+        lines = []
+        for entry in self.entries:
+            lines.append(entry.target)
+        return lines
