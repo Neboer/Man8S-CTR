@@ -20,7 +20,7 @@ from mbctl.network.address import get_ipv6_addr_prefix
 import copy
 import os
 
-__version__ = "v0.7.1"
+__version__ = "v0.8.0-alpha"
 
 app = typer.Typer(
     help=(
@@ -95,7 +95,7 @@ def build_mbcontainer(
     print(f"Running container: {container_name}")
     containers = load_compose_configs()
     for e in containers[container_name].mount.entries:
-        prepare_mount_entry(e)
+        prepare_mount_entry(e, containers[container_name].image)
     client.stop_and_wait_container_safely(container_name, hide=True)
     client.remove_container(container_name, safe=True, hide=True)
     client.compose_create_container(

@@ -55,6 +55,7 @@ class MBContainerMountEntry:
     target: str  # container path
     file: bool  # whether it's a file mount point
     type: MountType  # mount type
+    copy: bool = False  # whether to copy content from image to local path
 
     def to_docker_mount_str(self) -> str:
         return f"{self.source.real_mount_source}:{self.target}"
@@ -123,6 +124,7 @@ class MBContainerMount:
                         target=inner_path,
                         file=conf.file,
                         type=mount_type,
+                        copy=conf.copy,
                     )
                 )
         return mount_points
@@ -154,6 +156,7 @@ class MBContainerMount:
                 entry.owner = ref_mount_entry.owner
                 entry.perm = ref_mount_entry.perm
                 entry.file = ref_mount_entry.file
+                entry.copy = ref_mount_entry.copy
 
     def _get_referenced_container(
         self, ref_container_name: str, reference_containers: Mapping[str, MBContainer]
@@ -192,6 +195,7 @@ class MBContainerMount:
                 perm=entry.perm,
                 source=entry.source.to_mbconfig_mount_source_str(),
                 file=entry.file,
+                copy=entry.copy,
             )
         return mount_conf
 
