@@ -1,5 +1,4 @@
 import json
-from datetime import datetime
 from typing import Any, Optional, Sequence, Tuple, Union
 
 import yaml
@@ -73,14 +72,6 @@ class MBContainerMountConf(BaseModel):
         return self
 
 
-class MBContainerMetadataConf(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
-    create_time: datetime = Field(default_factory=datetime.now)
-    last_update_time: datetime = Field(default_factory=datetime.now)
-    author: Optional[str] = ""
-
-
 type MBPortPiece = Union[Tuple[int, int], Tuple[int, int, bool]]
 
 
@@ -95,7 +86,6 @@ class MBContainerConf(BaseModel):
     # host_port, container_port, is_udp(optional)
     port: Sequence[MBPortPiece] = Field(default_factory=list)
     environment: dict[str, str] = Field(default_factory=dict)
-    metadata: MBContainerMetadataConf = Field(default_factory=MBContainerMetadataConf)
     # Additional local access hostnames whose Yggdrasil addresses are added to extra_hosts
     local_access: set[str] = Field(default_factory=set)
     # DNS setting for the container
