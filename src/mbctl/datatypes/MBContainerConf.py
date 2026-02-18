@@ -22,7 +22,7 @@ class MBContainerMountPointConf(BaseModel):
     owner: list[int] = Field(default_factory=lambda: [0, 0])  # [uid, gid]
     source: Optional[str] = None  # source path
     file: bool = False  # whether it's a file mount point
-    copy: bool = False  # whether to copy content from image to local path
+    copyfrom: bool = False  # whether to copy content from image to local path
     perm: Optional[str] = None  # determined based on file flag
 
     @field_validator("source")
@@ -34,7 +34,7 @@ class MBContainerMountPointConf(BaseModel):
 
     @model_validator(mode="after")
     def validate_copy_source(self) -> "MBContainerMountPointConf":
-        if self.copy and self.source is not None and ":" in self.source:
+        if self.copyfrom and self.source is not None and ":" in self.source:
             raise ValueError(
                 f"Copy option source cannot reference other containers: {self.source}"
             )

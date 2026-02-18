@@ -3,7 +3,6 @@ import typer
 from mbctl.NerdClient.NerdClient import NerdClient
 from mbctl.NerdClient.NerdContainerInfo import NerdContainerInfo
 from mbctl.MBHost.LoadMBContainers import load_mbcontainer_config
-from mbctl.MBHost.MakeMountdirs import prepare_mount_entry
 from mbctl.MBContainer import MBContainer
 from mbctl.MBLog import mb_logger
 from sys import argv
@@ -14,10 +13,11 @@ from .print_hostingmbcontainers import (
     print_short_hosting_mbcontainers,
 )
 from .be_shell import online_shell, network_shell
+from .BuildMBContainer import build_mbcontainer
 from mbctl.MBConfig import mb_config
 from mbctl.network.address import get_ipv6_addr_prefix
 
-import copy
+import copy as copy_module
 import os
 
 __version__ = "v0.8.0-alpha"
@@ -79,7 +79,7 @@ def get_running_container_infos() -> list[NerdContainerInfo]:
     "run",
     help="Stop & RM (if exists) and Build & start a Man8S-managed container by name.",
 )
-def build_mbcontainer(
+def run_command(
     container_name: Annotated[
         str, typer.Argument(help="Container name defined in Man8S compose-style specs.")
     ],
@@ -92,20 +92,15 @@ def build_mbcontainer(
         typer.Option("--detach", "-d", help="Don't show log output, just run."),
     ] = False,
 ):
-    print(f"Running container: {container_name}")
     containers = load_compose_configs()
-    for e in containers[container_name].mount.entries:
-        prepare_mount_entry(e, containers[container_name].image)
-    client.stop_and_wait_container_safely(container_name, hide=True)
-    client.remove_container(container_name, safe=True, hide=True)
-    client.compose_create_container(
-        container_name,
-        containers[container_name].to_compose_conf().to_compose_dict(),
+    container = containers[container_name]
+    build_mbcontainer(
+        container=container,
+        container_name=container_name,
+        client=client,
         pull=pull,
+        detach=detach,
     )
-    if not detach:
-        client.next_command_will_execvp()
-        client.monitor_container_logs(container_name)
 
 
 # mbctl list
@@ -169,7 +164,7 @@ def main():
     ):
         app(prog_name="mbctl")
     else:
-        cli_args = copy.copy(argv)
+        cli_args = copy_module.copy(argv)
         cli_args[0] = "nerdctl"
         just_like_nerdctl(cli_args)  # just like nerdctl's execution.
 
