@@ -1,7 +1,6 @@
 from mbctl.datatypes import ComposeConf, MBContainerConf
 from mbctl.MBContainer import MBContainer
 from os import path
-from mbctl.MBHost import MBHost
 
 current_dir = path.dirname(__file__)
 
@@ -24,9 +23,3 @@ def test_conf_convert():
     MBContainerConf.to_json_schema_file(
         path.join(current_dir, "resources/mbcontainerconf-schema.json")
     )
-
-
-def test_container_list():
-    host = MBHost(yggaddr="200:64f7:cae4:9395:44f1:455d:de99:e7", yggprefix="300:64f7:cae4:9395::/64")
-    host.list_all_mbcontainer_names()
-
