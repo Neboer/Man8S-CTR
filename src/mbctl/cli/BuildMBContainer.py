@@ -6,7 +6,6 @@ from mbctl.NerdClient.NerdClient import NerdClient
 from mbctl.MBContainer import MBContainer
 from mbctl.MBHost.MakeMountdirs import (
     prepare_mount_entry,
-    realize_dir_mount_conf,
     check_mount_path_empty,
     copy_from_container_with_tar,
 )
@@ -93,16 +92,7 @@ def _handle_copyfrom_mount(
         mb_logger.debug(
             f"[copyfrom] Creating mount directory: {entry.source.real_mount_source_path}"
         )
-        realize_dir_mount_conf(
-            entry.source.real_mount_source_path,
-            entry.owner[0],
-            entry.owner[1],
-            entry.perm,
-        )
-        mb_logger.debug(
-            f"[copyfrom] Mount directory created with owner {entry.owner[0]}:{entry.owner[1]} "
-            f"and permissions {entry.perm}"
-        )
+        prepare_mount_entry(entry)
         
         # 创建临时容器
         mb_logger.debug(
