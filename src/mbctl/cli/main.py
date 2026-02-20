@@ -20,7 +20,7 @@ from mbctl.network.address import get_ipv6_addr_prefix
 import copy as copy_module
 import os
 
-__version__ = "v0.8.2"
+__version__ = "v0.8.3"
 
 app = typer.Typer(
     help=(
