@@ -162,3 +162,50 @@ class NerdClient(CommandExecutor):
 
         self.execute(command, stdout="print", stderr="print")
         return None
+
+    def create_temp_container(self, container_name: str, image_name: str) -> None:
+        """创建并启动一个临时容器。
+        
+        Args:
+            container_name: 临时容器名称
+            image_name: 镜像名称
+        """
+        self.execute(
+            [
+                "nerdctl", "run",
+                "-d",
+                "--name", container_name,
+                image_name,
+                "sleep", "infinity"
+            ],
+            safe=False
+        )
+
+    def copy_from_container(
+        self, 
+        container_name: str, 
+        container_path: str, 
+        host_path: str
+    ) -> int:
+        """从容器中复制内容到主机。
+        
+        规则：源路径 trailing slash 表示复制内容，不带 slash 表示复制整个目录。
+        目标路径不应该以 slash 结尾（否则会创建嵌套结构）。
+        
+        Args:
+            container_name: 容器名称
+            container_path: 容器内路径（trailing slash 表示复制内容）
+            host_path: 主机目标路径（不应该以 / 结尾）
+            
+        Returns:
+            命令的退出码
+        """
+        _, code = self.execute(
+            [
+                "nerdctl", "cp",
+                f"{container_name}:{container_path}/",
+                host_path
+            ],
+            safe=True
+        )
+        return code

@@ -55,6 +55,7 @@ class MBContainerMountEntry:
     target: str  # container path
     file: bool  # whether it's a file mount point
     type: MountType  # mount type
+    copyfrom: bool = False  # whether to copy content from image to local path
 
     def to_docker_mount_str(self) -> str:
         return f"{self.source.real_mount_source}:{self.target}"
@@ -123,6 +124,7 @@ class MBContainerMount:
                         target=inner_path,
                         file=conf.file,
                         type=mount_type,
+                        copyfrom=conf.copyfrom,
                     )
                 )
         return mount_points
@@ -154,6 +156,8 @@ class MBContainerMount:
                 entry.owner = ref_mount_entry.owner
                 entry.perm = ref_mount_entry.perm
                 entry.file = ref_mount_entry.file
+                # 引用的挂载点不应该再次执行copyfrom，因为内容已经在被引用的容器中复制过一次了
+                entry.copyfrom = False
 
     def _get_referenced_container(
         self, ref_container_name: str, reference_containers: Mapping[str, MBContainer]
@@ -184,6 +188,7 @@ class MBContainerMount:
             MountType.conf: mount_conf.conf,
             MountType.cache: mount_conf.cache,
             MountType.plugin: mount_conf.plugin,
+            MountType.socket: mount_conf.socket,
         }
         for entry in self.entries:
             mount_map[entry.type][entry.target] = MBContainerMountPointConf(
@@ -191,6 +196,7 @@ class MBContainerMount:
                 perm=entry.perm,
                 source=entry.source.to_mbconfig_mount_source_str(),
                 file=entry.file,
+                copyfrom=entry.copyfrom,
             )
         return mount_conf
 

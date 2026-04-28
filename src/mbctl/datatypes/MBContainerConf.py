@@ -1,5 +1,4 @@
 import json
-from datetime import datetime
 from typing import Any, Optional, Sequence, Tuple, Union
 
 import yaml
@@ -22,6 +21,7 @@ class MBContainerMountPointConf(BaseModel):
     owner: list[int] = Field(default_factory=lambda: [0, 0])  # [uid, gid]
     source: Optional[str] = None  # source path
     file: bool = False  # whether it's a file mount point
+    copyfrom: bool = False  # whether to copy content from image to local path
     perm: Optional[str] = None  # determined based on file flag
 
     @field_validator("source")
@@ -30,6 +30,14 @@ class MBContainerMountPointConf(BaseModel):
         if value is not None and not is_valid_path_or_reference(value):
             raise ValueError(f"Invalid source path: {value}")
         return value
+
+    @model_validator(mode="after")
+    def validate_copy_source(self) -> "MBContainerMountPointConf":
+        if self.copyfrom and self.source is not None and ":" in self.source:
+            raise ValueError(
+                f"Copy option source cannot reference other containers: {self.source}"
+            )
+        return self
 
     @model_validator(mode="after")
     def set_default_perm(self) -> "MBContainerMountPointConf":
@@ -64,14 +72,6 @@ class MBContainerMountConf(BaseModel):
         return self
 
 
-class MBContainerMetadataConf(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
-    create_time: datetime = Field(default_factory=datetime.now)
-    last_update_time: datetime = Field(default_factory=datetime.now)
-    author: Optional[str] = ""
-
-
 type MBPortPiece = Union[Tuple[int, int], Tuple[int, int, bool]]
 
 
@@ -86,7 +86,6 @@ class MBContainerConf(BaseModel):
     # host_port, container_port, is_udp(optional)
     port: Sequence[MBPortPiece] = Field(default_factory=list)
     environment: dict[str, str] = Field(default_factory=dict)
-    metadata: MBContainerMetadataConf = Field(default_factory=MBContainerMetadataConf)
     # Additional local access hostnames whose Yggdrasil addresses are added to extra_hosts
     local_access: set[str] = Field(default_factory=set)
     # DNS setting for the container

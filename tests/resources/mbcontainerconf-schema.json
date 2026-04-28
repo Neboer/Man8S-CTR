@@ -105,6 +105,11 @@
           "title": "File",
           "type": "boolean"
         },
+        "copyfrom": {
+          "default": false,
+          "title": "Copyfrom",
+          "type": "boolean"
+        },
         "perm": {
           "anyOf": [
             {

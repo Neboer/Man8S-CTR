@@ -1,15 +1,5 @@
-# Man8S-CTR
-Another container orchestration system. Man8S use yggdrasil as VPN networking, use containerd to maintain containers and images, and use a new kind of config manage various types of dirs of containers.
+# Man8S CTR
 
-## The process for creating a container:
-1. convert MBContainerConf to ComposeConf
-2. create mount point source and change their owner/perm according to the config.
-3. compose up the container.
+有关Man8S的详细文档见
 
-## Limitation
-
-in this version, we have these limitations:
-- can't limit container's network connection.
-
-## IPv4 forwarding
-
+https://www.neboer.site/blog/complete-instruction-of-man8s-ctr
