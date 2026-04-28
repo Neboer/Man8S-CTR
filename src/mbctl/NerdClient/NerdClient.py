@@ -209,3 +209,14 @@ class NerdClient(CommandExecutor):
             safe=True
         )
         return code
+    
+    def update_container_restart_policy(self, container_name: str, policy: Literal["no", "always", "on-failure", "unless-stopped"]) -> None:
+        """更新容器的重启策略。"""
+        self.execute(
+            [
+                "nerdctl", "update",
+                "--restart", policy,
+                container_name
+            ],
+            safe=False
+        )

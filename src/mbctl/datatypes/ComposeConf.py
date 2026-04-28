@@ -19,6 +19,7 @@ class ComposeServiceConf(BaseModel):
     restart: str
     extra_hosts: Dict[str, str] = Field(default_factory=dict)
     dns: Optional[str] = None
+    healthcheck: Optional[Dict[str, Any]] = None
 
 
 class ComposeNetworkConfig(BaseModel):

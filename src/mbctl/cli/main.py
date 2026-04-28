@@ -2,10 +2,16 @@ from typing import Annotated
 import typer
 from mbctl.NerdClient.NerdClient import NerdClient
 from mbctl.NerdClient.NerdContainerInfo import NerdContainerInfo
-from mbctl.MBHost.LoadMBContainers import load_mbcontainer_config
+from mbctl.MBHost.Loader import load_all_mbcontainers
 from mbctl.MBContainer import MBContainer
 from mbctl.MBLog import mb_logger
 from sys import argv
+
+from mbctl.cli.update_mbcontainer import (
+    disable_mbcontainer_autostart,
+    enable_mbcontainer_autostart,
+)
+from mbctl.datatypes import MBContainerConf
 
 from .HostingMBContainer import HostingMBContainer, get_hosting_mbcontainers_list
 from .print_hostingmbcontainers import (
@@ -13,7 +19,7 @@ from .print_hostingmbcontainers import (
     print_short_hosting_mbcontainers,
 )
 from .be_shell import online_shell, network_shell
-from .BuildMBContainer import build_mbcontainer
+from .build_mb_container import build_mbcontainer
 from mbctl.MBConfig import mb_config
 from mbctl.network.address import get_ipv6_addr_prefix
 
@@ -62,7 +68,7 @@ client = NerdClient()  # 这个client一定是本机，其实这个client的设�
 def load_compose_configs() -> dict[str, MBContainer]:
     """加载所有的 MBContainer 配置文件，返回 MBContainerTree 对象。"""
     mb_logger.debug("Loading MBContainer configurations...")
-    containers, _ = load_mbcontainer_config(get_ipv6_addr_prefix(mb_config.yggaddr))
+    containers, _ = load_all_mbcontainers(get_ipv6_addr_prefix(mb_config.yggaddr))
     mb_logger.debug(f"Loaded {len(containers)} MBContainer configurations.")
     return containers
 
@@ -145,6 +151,34 @@ def nerdctl_shell(
         network_shell(client, c)
     else:
         online_shell(client, container_name)
+
+
+@app.command(
+    "enable",
+    help="Enable autostart for a container.",
+)
+def enable_autostart(
+    container_name: Annotated[
+        str, typer.Argument(help="Target container nameto enable autostart.")
+    ],
+):
+    containers = load_compose_configs()
+    container = containers[container_name]
+    enable_mbcontainer_autostart(client, container)
+
+
+@app.command(
+    "disable",
+    help="Disable autostart for a container.",
+)
+def disable_autostart(
+    container_name: Annotated[
+        str, typer.Argument(help="Target container name to disable autostart.")
+    ],
+):
+    containers = load_compose_configs()
+    container = containers[container_name]
+    disable_mbcontainer_autostart(client, container)
 
 
 # 就像nerdctl一样执行命令，这里直接使用 os.execvp 来替换当前进程。

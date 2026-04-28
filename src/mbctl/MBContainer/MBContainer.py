@@ -63,7 +63,9 @@ class MBContainer:
         Convert the loaded MBContainerConf into a ComposeConf instance.
         """
         network_name = (
-            mb_config.network_name.withygg if self.enable_ygg else mb_config.network_name.noygg
+            mb_config.network_name.withygg
+            if self.enable_ygg
+            else mb_config.network_name.noygg
         )
 
         restart = "unless-stopped" if self.autostart else "no"
@@ -92,10 +94,11 @@ class MBContainer:
             restart=restart,
             extra_hosts=extra_hosts,
             dns=self.dns.to_compose_dns_entry(self.host_yggdrasil_prefix),
+            healthcheck={"disable": "true"}, # Man8S显式的禁用所有容器健康检查，因为我们认为Nerdctl的健康检查功能就是残废。
         )
 
         return ComposeConf(
             extra_compose_configs=self.extra_compose_configs,
             services={self.name: compose_service},
-            networks={network_name: ComposeNetworkConfig(external=True)}
+            networks={network_name: ComposeNetworkConfig(external=True)},
         )

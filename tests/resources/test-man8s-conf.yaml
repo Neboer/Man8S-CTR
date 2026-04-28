@@ -32,16 +32,6 @@ environment:
     RUSTFS_CONSOLE_ENABLE: "true"
     RUST_LOG: error
     RUSTFS_OBS_LOG_DIRECTORY: "/log/"
-#firewall-allow:
-#	internet:
-#	    ipv4: false
-#	    ipv6: false
-#	srvnet:
-#        '*': false
-#        "pgsql1-relink.us.ygg": true
-#    bridge:
-#        '*': false
-#        'pgsql1-relink': true
 local_access:
     - my-dns-server
     - test-nginx-1
