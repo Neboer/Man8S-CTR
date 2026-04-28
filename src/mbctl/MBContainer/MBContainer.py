@@ -95,7 +95,6 @@ class MBContainer:
             restart=restart,
             extra_hosts=extra_hosts,
             dns=self.dns.to_compose_dns_entry(self.host_yggdrasil_prefix),
-            healthcheck={"disable": "true"}, # Man8S显式的禁用所有容器健康检查，因为我们认为Nerdctl的健康检查功能就是残废。
         )
 
         return ComposeConf(
