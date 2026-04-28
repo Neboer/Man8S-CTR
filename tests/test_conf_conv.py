@@ -15,6 +15,10 @@ def test_conf_convert():
 
     output_compose_conf = test_container.to_compose_conf()
 
+    output_new_mbcontainer_conf = test_mbcontainer_conf.to_yaml_file(
+        path.join(current_dir, "resources/test-man8s-conf-out.yaml")
+    )
+
     with open(
         path.join(current_dir, "resources/test-man8s-compose.yaml"), "w"
     ) as output_compose_file:

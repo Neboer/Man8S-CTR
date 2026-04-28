@@ -4,8 +4,11 @@ from typing import Any, Optional, Sequence, Tuple, Union
 import yaml
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 from ruamel.yaml import YAML
-from ruamel.yaml.comments import CommentedSeq
-from ruamel.yaml.scalarstring import DoubleQuotedScalarString
+
+from .MBContainerConfFormat import (
+    _prune_defaults_for_yaml,
+    _to_styled_yaml_node,
+)
 
 
 def is_valid_path_or_reference(p: str) -> bool:
@@ -78,73 +81,6 @@ class MBContainerMountConf(BaseModel):
 type MBPortPiece = Union[Tuple[int, int], Tuple[int, int, bool]]
 
 
-def _prune_defaults_for_yaml(data: dict[str, Any]) -> dict[str, Any]:
-    """Remove verbose default-only fields so exported YAML stays concise."""
-    if not data.get("require"):
-        data.pop("require", None)
-    if not data.get("local_access"):
-        data.pop("local_access", None)
-
-    mount = data.get("mount")
-    if isinstance(mount, dict):
-        for group_name in list(mount.keys()):
-            group = mount[group_name]
-            if not isinstance(group, dict) or not group:
-                mount.pop(group_name, None)
-                continue
-
-            for mount_point_conf in group.values():
-                if not isinstance(mount_point_conf, dict):
-                    continue
-
-                is_file = bool(mount_point_conf.get("file", False))
-                default_perm = "644" if is_file else "755"
-
-                if mount_point_conf.get("owner") == [0, 0]:
-                    mount_point_conf.pop("owner", None)
-                if mount_point_conf.get("file") is False:
-                    mount_point_conf.pop("file", None)
-                if mount_point_conf.get("copyfrom") is False:
-                    mount_point_conf.pop("copyfrom", None)
-                if mount_point_conf.get("perm") == default_perm:
-                    mount_point_conf.pop("perm", None)
-
-        if not mount:
-            data.pop("mount", None)
-
-    return data
-
-
-def _to_styled_yaml_node(
-    value: Any,
-    key: str | None = None,
-    parent_key: str | None = None,
-) -> Any:
-    """Convert python objects to ruamel YAML nodes with mbctl preferred style."""
-    if isinstance(value, dict):
-        return {
-            k: _to_styled_yaml_node(v, str(k), key)
-            for k, v in value.items()
-        }
-
-    if isinstance(value, list):
-        seq = CommentedSeq([
-            _to_styled_yaml_node(item, parent_key=key) for item in value
-        ])
-        if key in {"command", "entrypoint"}:
-            seq.fa.set_flow_style()
-        return seq
-
-    if isinstance(value, str) and (
-        key == "source"
-        or parent_key == "environment"
-        or parent_key in {"command", "entrypoint"}
-    ):
-        return DoubleQuotedScalarString(value)
-
-    return value
-
-
 class MBContainerConf(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -157,7 +93,7 @@ class MBContainerConf(BaseModel):
     port: Sequence[MBPortPiece] = Field(default_factory=list)
     environment: dict[str, str] = Field(default_factory=dict)
     # Additional local access hostnames whose Yggdrasil addresses are added to extra_hosts
-    local_access: set[str] = Field(default_factory=set)
+    local_access: Sequence[str] = Field(default_factory=list)
     # DNS setting for the container
     dns: str = "host"
     extra_compose_configs: dict[str, Any] = Field(default_factory=dict)
@@ -200,7 +136,9 @@ class MBContainerConf(BaseModel):
     def to_yaml_file(self, file_path: str) -> None:
         yaml_emitter = YAML()
         yaml_emitter.default_flow_style = False
-        yaml_emitter.indent(mapping=2, sequence=4, offset=2)
+        # Use 2-space indentation for mappings and sequences to match project style
+        # offset=2 ensures sequences under mappings are indented correctly
+        yaml_emitter.indent(mapping=2, sequence=2, offset=2)
 
         yaml_data = _to_styled_yaml_node(
             _prune_defaults_for_yaml(self.model_dump(mode="json", exclude_none=True))

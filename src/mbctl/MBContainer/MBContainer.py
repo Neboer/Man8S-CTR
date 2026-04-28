@@ -72,8 +72,9 @@ class MBContainer:
 
         # 简单的处理一下extra_hosts。将容器自己的名字添加进去，然后再将所有local_access的名字添加进去。
         if self.enable_ygg:
-            real_local_access_container_names = copy(self.local_access)
-            real_local_access_container_names.add(self.name)
+            real_local_access_container_names = list(self.local_access)
+            if self.name not in real_local_access_container_names:
+                real_local_access_container_names.append(self.name)
             extra_hosts = {
                 f"{ct_name}.{mb_config.local_domain}": string_to_v6suffix(
                     self.host_yggdrasil_prefix, ct_name
