@@ -20,7 +20,7 @@ def print_full_hosting_mbcontainers(
     ]
 
     # 其中 Mounts 字段是多行显示的。
-    for hc in hosting_containers.values():
+    for hc in sorted(hosting_containers.values(), key=lambda hc: hc.mbcontainer.name):
         mounts_str = "\n".join(hc.mbcontainer.mount.to_mount_short_str_list())
         if hc.info is not None:
             row = [
@@ -64,7 +64,7 @@ def print_short_hosting_mbcontainers(
         "YggAddr",
     ]
 
-    for hc in hosting_containers.values():
+    for hc in sorted(hosting_containers.values(), key=lambda hc: hc.mbcontainer.name):
         short_image_str = (
             hc.mbcontainer.image.split("/", 1)[-1]
             if "/" in hc.mbcontainer.image
