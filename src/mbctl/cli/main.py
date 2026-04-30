@@ -16,10 +16,7 @@ from mbctl.cli.update_mbcontainer import (
 from mbctl.datatypes import MBContainerConf
 
 from .HostingMBContainer import HostingMBContainer, get_hosting_mbcontainers_list
-from .print_hostingmbcontainers import (
-    print_full_hosting_mbcontainers,
-    print_short_hosting_mbcontainers,
-)
+from .print_hostingmbcontainers import print_short_hosting_mbcontainers
 from .be_shell import online_shell, network_shell
 from .build_mb_container import build_mbcontainer
 from mbctl.MBConfig import mb_config
@@ -123,22 +120,12 @@ def run_command(
 
 # mbctl list
 @app.command("list", help="List all managed containers and their runtime details.")
-def list_all_mbcontainers(
-    long: Annotated[
-        bool,
-        typer.Option(
-            "--long", "-l", help="Show detailed information of each container."
-        ),
-    ] = False,
-):
+def list_all_mbcontainers():
     containers = load_compose_configs()
     infos = get_running_container_infos()
     hosting_mbcontainers = get_hosting_mbcontainers_list(containers, infos)
 
-    if long:
-        print_full_hosting_mbcontainers(hosting_mbcontainers)
-    else:
-        print_short_hosting_mbcontainers(hosting_mbcontainers)
+    print_short_hosting_mbcontainers(hosting_mbcontainers)
 
 
 @app.command(

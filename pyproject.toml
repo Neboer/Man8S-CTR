@@ -41,7 +41,6 @@ dependencies = [
     "ruamel.yaml",
     "pydantic",
     "typer",
-    "prettytable",
 ]
 
 [project.urls]

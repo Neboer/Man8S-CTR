@@ -3,4 +3,3 @@ ruamel.yaml
 # python-on-whales
 pydantic
 typer
-prettytable

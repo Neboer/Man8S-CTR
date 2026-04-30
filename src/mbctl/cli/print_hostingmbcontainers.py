@@ -1,68 +1,49 @@
-from prettytable import PrettyTable, TableStyle
 from .HostingMBContainer import HostingMBContainer
 
 
-def print_full_hosting_mbcontainers(
-    hosting_containers: dict[str, HostingMBContainer],
-) -> None:
-    """打印完整的正在运行的 Man8S 容器信息表。"""
-    table = PrettyTable(padding_width=1)
-    table.align = "l"
-    table.field_names = [
-        "Container",
-        "ID",
-        "Image",
-        "Status",
-        "AutoStart",
-        "YggAddr",
-        "Ports",
-        "Mounts",
-    ]
-
-    # 其中 Mounts 字段是多行显示的。
-    for hc in sorted(hosting_containers.values(), key=lambda hc: hc.mbcontainer.name):
-        mounts_str = "\n".join(hc.mbcontainer.mount.to_mount_short_str_list())
-        if hc.info is not None:
-            row = [
-                hc.mbcontainer.name,
-                hc.info.id,
-                hc.mbcontainer.image,
-                str(hc.info.status_info),
-                "Yes" if hc.mbcontainer.autostart else "No",
-                hc.mbcontainer.yggdrasil_addr or "N/A",
-                ", ".join(hc.info.ports) if hc.info.ports else "None",
-                mounts_str,
-            ]
-        else:
-            row = [
-                hc.mbcontainer.name,
-                "N/A",
-                hc.mbcontainer.image,
-                "Never",
-                "Yes" if hc.mbcontainer.autostart else "No",
-                hc.mbcontainer.yggdrasil_addr or "N/A",
-                "N/A",
-                mounts_str,
-            ]
-        table.add_row(row)
-
-    table.set_style(TableStyle.PLAIN_COLUMNS)
-    print(table)
+def print_table(headers, rows, column_spacing=2):
+    """
+    打印对齐的表格，表头居中，数据行左对齐。
+    
+    Args:
+        headers: 表头列表
+        rows: 数据行列表，每行是一个列表
+        column_spacing: 列之间的间距，默认2个空格
+    """
+    # 计算每列的最大宽度
+    col_widths = [len(str(h)) for h in headers]
+    for row in rows:
+        for i, cell in enumerate(row):
+            col_widths[i] = max(col_widths[i], len(str(cell)))
+    
+    # 打印表头（居中）
+    header_parts = []
+    for i, h in enumerate(headers):
+        width = col_widths[i]
+        header_parts.append(str(h).center(width))
+    print((' ' * column_spacing).join(header_parts))
+    
+    # 打印数据行（左对齐）
+    for row in rows:
+        row_parts = []
+        for i, cell in enumerate(row):
+            width = col_widths[i]
+            row_parts.append(str(cell).ljust(width))
+        print((' ' * column_spacing).join(row_parts))
 
 
 def print_short_hosting_mbcontainers(
     hosting_containers: dict[str, HostingMBContainer],
 ) -> None:
     """打印简略的正在运行的 Man8S 容器信息表。"""
-    table = PrettyTable()
-    table.align = "l"
-    table.field_names = [
+    headers = [
         "Container",
         "Image",
         "Status",
-        "AutoStart",
+        "Enable",
         "YggAddr",
     ]
+    rows = []
 
     for hc in sorted(hosting_containers.values(), key=lambda hc: hc.mbcontainer.name):
         short_image_str = (
@@ -71,14 +52,13 @@ def print_short_hosting_mbcontainers(
             else hc.mbcontainer.image
         )
 
-        table.add_row(
-            [
-                hc.mbcontainer.name,
-                short_image_str,
-                str(hc.info.status_info) if hc.info is not None else "Never",
-                "Yes" if hc.mbcontainer.autostart else "No",
-                hc.mbcontainer.yggdrasil_addr or "N/A",
-            ]
-        )
-    table.set_style(TableStyle.PLAIN_COLUMNS)
-    print(table)
+        row = [
+            hc.mbcontainer.name,
+            short_image_str,
+            str(hc.info.status_info) if hc.info is not None else "Never",
+            "Yes" if hc.mbcontainer.autostart else "No",
+            hc.mbcontainer.yggdrasil_addr or "N/A",
+        ]
+        rows.append(row)
+    
+    print_table(headers, rows, column_spacing=2)
