@@ -26,18 +26,47 @@ class NerdContainerStatusInfo(BaseModel):
     exit_code: Optional[int] = None
     duration_seconds: Optional[int] = None
 
+    @staticmethod
+    def _format_duration_short(duration_seconds: Optional[int]) -> str:
+        if duration_seconds is None:
+            return ""
+
+        if duration_seconds >= 31536000:
+            return f"{duration_seconds // 31536000}y"
+        if duration_seconds >= 2592000:
+            return f"{duration_seconds // 2592000}mo"
+        if duration_seconds >= 604800:
+            return f"{duration_seconds // 604800}w"
+        if duration_seconds >= 86400:
+            return f"{duration_seconds // 86400}d"
+        if duration_seconds >= 3600:
+            return f"{duration_seconds // 3600}h"
+        if duration_seconds >= 60:
+            return f"{duration_seconds // 60}m"
+        return f"{duration_seconds}s"
+
     def __str__(self) -> str:
-        # 打印简单的状态信息，不要像raw一样冗长
+        # 统一输出短格式，避免状态信息过长
+        short_duration = self._format_duration_short(self.duration_seconds)
+
         if self.kind == NerdContainerStatusKind.up:
-            return f"Up {self.since}" if self.since else "Up"
+            return f"Up,{short_duration}" if short_duration else "Up"
         elif self.kind == NerdContainerStatusKind.created:
-            return "Created"
+            return f"Created,{short_duration}" if short_duration else "Created"
         elif self.kind == NerdContainerStatusKind.exited:
-            code_str = f" ({self.exit_code})" if self.exit_code is not None else ""
-            return f"Exit{code_str} {self.since}" if self.since else f"Exit{code_str}"
+            parts = ["Exit"]
+            if self.exit_code is not None:
+                parts.append(str(self.exit_code))
+            if short_duration:
+                parts.append(short_duration)
+            return ",".join(parts)
         elif self.kind == NerdContainerStatusKind.restarting:
-            code_str = f" ({self.exit_code})" if self.exit_code is not None else ""
-            return f"Restart{code_str} {self.since}" if self.since else f"Restart{code_str}"
+            parts = ["Restart"]
+            if self.exit_code is not None:
+                parts.append(str(self.exit_code))
+            if short_duration:
+                parts.append(short_duration)
+            return ",".join(parts)
         else:
             return self.raw
 

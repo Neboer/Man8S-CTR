@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python Debugger: Module",
+            "name": "sudo debug",
             "type": "debugpy",
             "request": "launch",
             "module": "mbctl",
@@ -14,6 +14,17 @@
             },
             "python": "sudo",
             "pythonArgs": [ "PYTHONPATH=${workspaceFolder}/src" , "${command:python.interpreterPath}"]
+        },
+        {
+            "name": "debug list",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "mbctl",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/src"
+            },
+            "args": ["list"],
+            "python": "${command:python.interpreterPath}"
         }
     ]
 }

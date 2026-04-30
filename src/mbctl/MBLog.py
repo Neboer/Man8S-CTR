@@ -1,5 +1,6 @@
 from logging import Logger
 import logging
+from rich.logging import RichHandler
 
 
 def get_logger() -> Logger:
@@ -7,11 +8,15 @@ def get_logger() -> Logger:
     logger = logging.getLogger("mbctl")
     if not logger.hasHandlers():
         logger.setLevel(logging.INFO)
-        ch = logging.StreamHandler()
-        ch.setLevel(logging.INFO)
-        formatter = logging.Formatter(
-            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        ch = RichHandler(
+            show_time=True,
+            show_level=True,
+            show_path=False,
+            rich_tracebacks=True,
+            markup=True,
         )
+        ch.setLevel(logging.INFO)
+        formatter = logging.Formatter("%(message)s")
         ch.setFormatter(formatter)
         logger.addHandler(ch)
     return logger
