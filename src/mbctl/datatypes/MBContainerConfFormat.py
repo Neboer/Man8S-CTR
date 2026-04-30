@@ -1,8 +1,51 @@
-"""YAML formatting utilities for MBContainerConf."""
+"""YAML formatting utilities for MBContainerConf.
+
+This module provides utilities for handling YAML serialization and RoundTrip updates.
+It is used internally by UpdateConfig for updating container configurations while
+preserving YAML comments and formatting. Do NOT use this module from other projects.
+
+Key functions:
+- update_mbcontainer_autostart(): RoundTrip update of autostart field in YAML file
+"""
 from typing import Any
+import os
 
 from ruamel.yaml.comments import CommentedSeq
 from ruamel.yaml.scalarstring import DoubleQuotedScalarString
+from ruamel.yaml import YAML
+
+# 这个实现得并不好，太过死板，只能改autostart。未来会考虑更通用的实现。
+def update_mbcontainer_autostart(file_path: str, autostart: bool) -> None:
+    """Update the autostart field in a MBContainerConf YAML file via RoundTrip.
+    
+    This preserves comments, formatting, and all other content in the file.
+    
+    Args:
+        file_path: Path to the YAML file
+        autostart: New autostart value (boolean)
+    """
+    yaml = YAML()
+    yaml.preserve_quotes = True
+    yaml.default_flow_style = False
+    # Preserve indentation to keep original formatting
+    yaml.indent(mapping=2, sequence=2, offset=2)
+    
+    # Ensure directory exists
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+    
+    # Read existing file
+    if os.path.exists(file_path):
+        with open(file_path, "r", encoding="utf-8") as f:
+            data = yaml.load(f)
+    else:
+        data = {}
+    
+    # Update autostart field
+    data["autostart"] = autostart
+    
+    # Write back, preserving format
+    with open(file_path, "w", encoding="utf-8") as f:
+        yaml.dump(data, f)
 
 
 def _prune_defaults_for_yaml(data: dict[str, Any]) -> dict[str, Any]:

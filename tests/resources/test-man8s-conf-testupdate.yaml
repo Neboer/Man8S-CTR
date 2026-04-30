@@ -1,21 +1,26 @@
-image: docker.io/example/somecontainer:latest
+# yaml-language-server: $schema=http://test.com/mbcontainerconf-schema.json
+
+
+image: "docker.io/example/somecontainer:latest"
 enable_ygg: true
-autostart: true
+autostart: false # autostart 
 require:
   - my-dns-server
   - test-nginx-1
 mount:
   data:
     /data:
-      owner: [10001, 10001]
+      owner: [10001, 10001] # test comment
+      perm: "755"
     /data2: {}
     /data3:
-      source: "/mnt/data/rustfs"
+      source: /mnt/data/rustfs
     /shared-data:
-      source: "test-nginx-1:/some/data"
+      source: 'test-nginx-1:/some/data'
   log:
     /log:
       owner: [10001, 10001]
+# 又是一些测试用注释
   conf:
     /etc/example_config: {}
     /etc/some_big: {}
@@ -34,6 +39,6 @@ environment:
 local_access:
   - my-dns-server
   - test-nginx-1
-dns: host
+dns: "host"
 extra_compose_configs:
   user: "10001:10001"

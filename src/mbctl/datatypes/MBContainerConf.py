@@ -133,20 +133,6 @@ class MBContainerConf(BaseModel):
             data = yaml.safe_load(f) or {}
         return cls.model_validate(data)
 
-    def to_yaml_file(self, file_path: str) -> None:
-        yaml_emitter = YAML()
-        yaml_emitter.default_flow_style = False
-        # Use 2-space indentation for mappings and sequences to match project style
-        # offset=2 ensures sequences under mappings are indented correctly
-        yaml_emitter.indent(mapping=2, sequence=2, offset=2)
-
-        yaml_data = _to_styled_yaml_node(
-            _prune_defaults_for_yaml(self.model_dump(mode="json", exclude_none=True))
-        )
-
-        with open(file_path, "w", encoding="utf-8") as f:
-            yaml_emitter.dump(yaml_data, f)
-
     @staticmethod
     def to_json_schema_file(file_path: str) -> None:
         json_schema = MBContainerConf.model_json_schema()

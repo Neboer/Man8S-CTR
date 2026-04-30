@@ -2,14 +2,13 @@ from typing import Optional, cast, Literal
 
 from mbctl.MBContainer import MBContainer, MBContainerTree
 from mbctl.NerdClient import NerdClient
-from mbctl.MBHost.UpdateConfig import write_mbcontainer_config
-from mbctl.MBHost.Loader import load_all_mbcontainers, load_mbcontainer_config_by_name
+from mbctl.MBHost.UpdateConfig import update_mbcontainer_autostart_config
+from mbctl.MBHost.Loader import load_all_mbcontainers
 from mbctl.NerdClient.NerdContainerInfo import (
     NerdContainerInfo,
     NerdContainerStatusKind,
 )
 from mbctl.cli.build_mb_container import build_mbcontainer
-from mbctl.datatypes import MBContainerConf
 from mbctl.MBLog import mb_logger
 
 
@@ -20,9 +19,8 @@ def _write_autostart_config_if_needed(
     if container.autostart == autostart:
         return False
 
-    container_conf: MBContainerConf = load_mbcontainer_config_by_name(container.name)
-    container_conf.autostart = autostart
-    write_mbcontainer_config(container.name, container_conf)
+    # Update config file via RoundTrip to preserve comments and format
+    update_mbcontainer_autostart_config(container.name, autostart)
     container.autostart = autostart
     return True
 
