@@ -4,7 +4,6 @@ from mbctl.NerdClient.NerdContainerInfo import NerdContainerStatusKind
 from rich.console import Console
 from rich.text import Text
 
-
 console = Console()
 
 
@@ -16,11 +15,11 @@ def _style_status(hc: HostingMBContainer, status: str) -> Text:
     if status_info.kind == NerdContainerStatusKind.up:
         return Text(status, style="bold green")
     if status_info.kind == NerdContainerStatusKind.created:
-        return Text(status, style="bold white")
+        return Text(status, style="white")
     if status_info.kind == NerdContainerStatusKind.exited:
-        if status_info.exit_code == 0:
-            return Text(status, style="bold white")
-        return Text(status, style="bold red")
+        if status_info.exit_code == 0 or status_info.exit_code == 143:
+            return Text(status, style="white")
+        return Text(status, style="red")
     if status_info.kind == NerdContainerStatusKind.restarting:
         return Text(status, style="bold cyan")
     return Text(status, style="white")
@@ -28,9 +27,9 @@ def _style_status(hc: HostingMBContainer, status: str) -> Text:
 
 def _style_enable(enable: str) -> Text:
     if enable == "Yes":
-        return Text(enable, style="bold green")
+        return Text("Yes", style="bold green")
     if enable == "No":
-        return Text(enable, style="bold red")
+        return Text("no", style="white")
     return Text(enable)
 
 
@@ -38,7 +37,7 @@ def _style_image(image: str) -> Text:
     if "/" not in image:
         return Text(image, style="bold")
 
-    prefix, suffix = image.split("/", 1)
+    prefix, suffix = image.rsplit("/", 1)
     text = Text()
     text.append(prefix)
     text.append("/")
@@ -84,9 +83,9 @@ def print_short_hosting_mbcontainers(
     hosting_containers: dict[str, HostingMBContainer],
 ) -> None:
     """打印简略的正在运行的 Man8S 容器信息表。"""
-    spacing = " "
-    headers = ["Container", "Image", "Status", "Enable", "YggAddr"]
-    keys = ["container", "image", "status", "enable", "yggaddr"]
+    spacing = "  "
+    headers = ["Container", "Image", "Status", "Enable", "YggAddr", "Created"]
+    keys = ["container", "image", "status", "enable", "yggaddr", "created"]
     rows: list[dict[str, str | HostingMBContainer]] = []
 
     for hc in sorted(hosting_containers.values(), key=lambda hc: hc.mbcontainer.name):
@@ -97,6 +96,7 @@ def print_short_hosting_mbcontainers(
             "status": _get_status_display(hc),
             "enable": "Yes" if hc.mbcontainer.autostart else "No",
             "yggaddr": hc.mbcontainer.yggdrasil_addr or "N/A",
+            "created": hc.info.created_at_short if hc.info else "Never",
         }
         rows.append(row)
 
@@ -150,5 +150,8 @@ def print_short_hosting_mbcontainers(
         )
         _append_spaced_cell(
             row_line, str(row["yggaddr"]), widths["yggaddr"], spacing
+        )
+        _append_spaced_cell(
+            row_line, str(row["created"]), widths["created"], spacing
         )
         console.print(row_line, no_wrap=True, overflow="ignore")
