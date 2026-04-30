@@ -10,7 +10,7 @@ from mbctl.datatypes import MBContainerConf, MountType
 from mbctl.MBConfig import mb_config
 
 
-def load_mbcontainer_config(
+def load_all_mbcontainers(
     yggdrasil_prefix: str,
 ) -> tuple[dict[str, MBContainer], MBContainerTree]:
     """Load all MBContainers from disk and return an MBContainerTree."""
@@ -31,3 +31,9 @@ def load_mbcontainer_config(
     container_tree.resolve_all()
 
     return {container.name: container for container in containers}, container_tree
+
+
+def load_mbcontainer_config_by_name(container_name: str) -> MBContainerConf:
+    config_base_dir = join(mb_config.storage_path, MountType.conf.value)
+    container_conf_path = join(config_base_dir, container_name, mb_config.config_file)
+    return MBContainerConf.from_yaml_file(container_conf_path)

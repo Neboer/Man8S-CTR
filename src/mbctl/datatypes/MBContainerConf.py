@@ -3,6 +3,12 @@ from typing import Any, Optional, Sequence, Tuple, Union
 
 import yaml
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from ruamel.yaml import YAML
+
+from .MBContainerConfFormat import (
+    _prune_defaults_for_yaml,
+    _to_styled_yaml_node,
+)
 
 
 def is_valid_path_or_reference(p: str) -> bool:
@@ -87,7 +93,7 @@ class MBContainerConf(BaseModel):
     port: Sequence[MBPortPiece] = Field(default_factory=list)
     environment: dict[str, str] = Field(default_factory=dict)
     # Additional local access hostnames whose Yggdrasil addresses are added to extra_hosts
-    local_access: set[str] = Field(default_factory=set)
+    local_access: Sequence[str] = Field(default_factory=list)
     # DNS setting for the container
     dns: str = "host"
     extra_compose_configs: dict[str, Any] = Field(default_factory=dict)
@@ -126,10 +132,6 @@ class MBContainerConf(BaseModel):
         with open(file_path, "r", encoding="utf-8") as f:
             data = yaml.safe_load(f) or {}
         return cls.model_validate(data)
-
-    def to_yaml_file(self, file_path: str) -> None:
-        with open(file_path, "w", encoding="utf-8") as f:
-            yaml.safe_dump(self.model_dump(mode="json"), f, sort_keys=False)
 
     @staticmethod
     def to_json_schema_file(file_path: str) -> None:

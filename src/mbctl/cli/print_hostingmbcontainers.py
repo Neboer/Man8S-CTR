@@ -1,84 +1,154 @@
-from prettytable import PrettyTable, TableStyle
 from .HostingMBContainer import HostingMBContainer
+from typing import cast
+from mbctl.NerdClient.NerdContainerInfo import NerdContainerStatusKind
+from rich.console import Console
+from rich.text import Text
 
 
-def print_full_hosting_mbcontainers(
-    hosting_containers: dict[str, HostingMBContainer],
+console = Console()
+
+
+def _style_status(hc: HostingMBContainer, status: str) -> Text:
+    if hc.info is None or hc.info.status_info is None:
+        return Text(status, style="dim")
+
+    status_info = hc.info.status_info
+    if status_info.kind == NerdContainerStatusKind.up:
+        return Text(status, style="bold green")
+    if status_info.kind == NerdContainerStatusKind.created:
+        return Text(status, style="bold white")
+    if status_info.kind == NerdContainerStatusKind.exited:
+        if status_info.exit_code == 0:
+            return Text(status, style="bold white")
+        return Text(status, style="bold red")
+    if status_info.kind == NerdContainerStatusKind.restarting:
+        return Text(status, style="bold cyan")
+    return Text(status, style="white")
+
+
+def _style_enable(enable: str) -> Text:
+    if enable == "Yes":
+        return Text(enable, style="bold green")
+    if enable == "No":
+        return Text(enable, style="bold red")
+    return Text(enable)
+
+
+def _style_image(image: str) -> Text:
+    if "/" not in image:
+        return Text(image, style="bold")
+
+    prefix, suffix = image.split("/", 1)
+    text = Text()
+    text.append(prefix)
+    text.append("/")
+    text.append(suffix, style="bold")
+    return text
+
+
+def _get_status_display(hc: HostingMBContainer) -> str:
+    if hc.info is None or hc.info.status_info is None:
+        return "Never"
+    return str(hc.info.status_info)
+
+
+def _append_spaced_cell(
+    line: Text,
+    raw_value: str,
+    width: int,
+    spacing: str,
+    *,
+    align: str = "left",
+    styled_value: Text | None = None,
 ) -> None:
-    """打印完整的正在运行的 Man8S 容器信息表。"""
-    table = PrettyTable(padding_width=1)
-    table.align = "l"
-    table.field_names = [
-        "Container",
-        "ID",
-        "Image",
-        "Status",
-        "AutoStart",
-        "YggAddr",
-        "Ports",
-        "Mounts",
-    ]
-
-    # 其中 Mounts 字段是多行显示的。
-    for hc in hosting_containers.values():
-        mounts_str = "\n".join(hc.mbcontainer.mount.to_mount_short_str_list())
-        if hc.info is not None:
-            row = [
-                hc.mbcontainer.name,
-                hc.info.id,
-                hc.mbcontainer.image,
-                str(hc.info.status_info),
-                "Yes" if hc.mbcontainer.autostart else "No",
-                hc.mbcontainer.yggdrasil_addr or "N/A",
-                ", ".join(hc.info.ports) if hc.info.ports else "None",
-                mounts_str,
-            ]
+    if align == "center":
+        left_pad = max((width - len(raw_value)) // 2, 0)
+        right_pad = max(width - len(raw_value) - left_pad, 0)
+        line.append(" " * left_pad)
+        if styled_value is None:
+            line.append(raw_value)
         else:
-            row = [
-                hc.mbcontainer.name,
-                "N/A",
-                hc.mbcontainer.image,
-                "Never",
-                "Yes" if hc.mbcontainer.autostart else "No",
-                hc.mbcontainer.yggdrasil_addr or "N/A",
-                "N/A",
-                mounts_str,
-            ]
-        table.add_row(row)
+            line.append_text(styled_value)
+        line.append(" " * right_pad)
+    else:
+        if styled_value is None:
+            line.append(raw_value)
+        else:
+            line.append_text(styled_value)
+        line.append(" " * max(width - len(raw_value), 0))
 
-    table.set_style(TableStyle.PLAIN_COLUMNS)
-    print(table)
+    line.append(spacing)
 
 
 def print_short_hosting_mbcontainers(
     hosting_containers: dict[str, HostingMBContainer],
 ) -> None:
     """打印简略的正在运行的 Man8S 容器信息表。"""
-    table = PrettyTable()
-    table.align = "l"
-    table.field_names = [
-        "Container",
-        "Image",
-        "Status",
-        "AutoStart",
-        "YggAddr",
-    ]
+    spacing = " "
+    headers = ["Container", "Image", "Status", "Enable", "YggAddr"]
+    keys = ["container", "image", "status", "enable", "yggaddr"]
+    rows: list[dict[str, str | HostingMBContainer]] = []
 
-    for hc in hosting_containers.values():
-        short_image_str = (
-            hc.mbcontainer.image.split("/", 1)[-1]
-            if "/" in hc.mbcontainer.image
-            else hc.mbcontainer.image
-        )
+    for hc in sorted(hosting_containers.values(), key=lambda hc: hc.mbcontainer.name):
+        row = {
+            "_hc": hc,
+            "container": hc.mbcontainer.name,
+            "image": hc.mbcontainer.image,
+            "status": _get_status_display(hc),
+            "enable": "Yes" if hc.mbcontainer.autostart else "No",
+            "yggaddr": hc.mbcontainer.yggdrasil_addr or "N/A",
+        }
+        rows.append(row)
 
-        table.add_row(
-            [
-                hc.mbcontainer.name,
-                short_image_str,
-                str(hc.info.status_info) if hc.info is not None else "Never",
-                "Yes" if hc.mbcontainer.autostart else "No",
-                hc.mbcontainer.yggdrasil_addr or "N/A",
-            ]
+    widths: dict[str, int] = {}
+    for key, header in zip(keys, headers):
+        widths[key] = len(header)
+
+    for row in rows:
+        for key in keys:
+            widths[key] = max(widths[key], len(str(row[key])))
+
+    header_line = Text()
+    for header, key in zip(headers, keys):
+        _append_spaced_cell(
+            header_line,
+            header,
+            widths[key],
+            spacing,
+            align="center",
+            styled_value=Text(header, style="bold"),
         )
-    table.set_style(TableStyle.PLAIN_COLUMNS)
-    print(table)
+    console.print(header_line, no_wrap=True, overflow="ignore")
+
+    for row in rows:
+        row_line = Text()
+        _append_spaced_cell(
+            row_line, str(row["container"]), widths["container"], spacing
+        )
+        _append_spaced_cell(
+            row_line,
+            str(row["image"]),
+            widths["image"],
+            spacing,
+            styled_value=_style_image(str(row["image"])),
+        )
+        _append_spaced_cell(
+            row_line,
+            str(row["status"]),
+            widths["status"],
+            spacing,
+            styled_value=_style_status(
+                cast(HostingMBContainer, row["_hc"]), str(row["status"])
+            ),
+        )
+        _append_spaced_cell(
+            row_line,
+            str(row["enable"]),
+            widths["enable"],
+            spacing,
+            styled_value=_style_enable(str(row["enable"])),
+        )
+        _append_spaced_cell(
+            row_line, str(row["yggaddr"]), widths["yggaddr"], spacing
+        )
+        console.print(row_line, no_wrap=True, overflow="ignore")

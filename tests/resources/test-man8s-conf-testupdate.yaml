@@ -3,7 +3,7 @@
 
 image: "docker.io/example/somecontainer:latest"
 enable_ygg: true
-autostart: true # autostart 
+autostart: false # autostart 
 require:
   - my-dns-server
   - test-nginx-1

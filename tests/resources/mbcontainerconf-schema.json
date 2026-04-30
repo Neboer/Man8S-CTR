@@ -1,34 +1,5 @@
 {
   "$defs": {
-    "MBContainerMetadataConf": {
-      "additionalProperties": false,
-      "properties": {
-        "create_time": {
-          "format": "date-time",
-          "title": "Create Time",
-          "type": "string"
-        },
-        "last_update_time": {
-          "format": "date-time",
-          "title": "Last Update Time",
-          "type": "string"
-        },
-        "author": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": "",
-          "title": "Author"
-        }
-      },
-      "title": "MBContainerMetadataConf",
-      "type": "object"
-    },
     "MBContainerMountConf": {
       "additionalProperties": false,
       "properties": {
@@ -200,16 +171,12 @@
       "title": "Environment",
       "type": "object"
     },
-    "metadata": {
-      "$ref": "#/$defs/MBContainerMetadataConf"
-    },
     "local_access": {
       "items": {
         "type": "string"
       },
       "title": "Local Access",
-      "type": "array",
-      "uniqueItems": true
+      "type": "array"
     },
     "dns": {
       "default": "host",
