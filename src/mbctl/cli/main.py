@@ -17,6 +17,7 @@ from mbctl.datatypes import MBContainerConf
 
 from .HostingMBContainer import HostingMBContainer, get_hosting_mbcontainers_list
 from .print_hostingmbcontainers import print_short_hosting_mbcontainers
+from .tree_hostingmbcontainers import print_tree_hosting_mbcontainers
 from .be_shell import online_shell, network_shell
 from .build_mb_container import build_mbcontainer
 from mbctl.MBConfig import mb_config
@@ -126,6 +127,15 @@ def list_all_mbcontainers():
     hosting_mbcontainers = get_hosting_mbcontainers_list(containers, infos)
 
     print_short_hosting_mbcontainers(hosting_mbcontainers)
+
+
+@app.command("tree", help="Show managed container names as a Rich tree.")
+def tree_all_mbcontainers():
+    containers = load_compose_configs()
+    infos = get_running_container_infos()
+    hosting_mbcontainers = get_hosting_mbcontainers_list(containers, infos)
+
+    print_tree_hosting_mbcontainers(hosting_mbcontainers)
 
 
 @app.command(
