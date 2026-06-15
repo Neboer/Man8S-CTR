@@ -25,6 +25,17 @@
             },
             "args": ["list"],
             "python": "${command:python.interpreterPath}"
+        },
+        {
+            "name": "debug test_conf_conv",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/tests/test_conf_conv.py",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/src"
+            },
+            "args": [],
+            "python": "${command:python.interpreterPath}"
         }
     ]
 }

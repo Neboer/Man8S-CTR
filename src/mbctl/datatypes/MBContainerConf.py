@@ -96,6 +96,8 @@ class MBContainerConf(BaseModel):
     local_access: Sequence[str] = Field(default_factory=list)
     # DNS setting for the container
     dns: str = "host"
+    # Extra hostname→IP mappings merged with local_access-generated entries in compose extra_hosts
+    extra_hosts: dict[str, str] = Field(default_factory=dict)
     extra_compose_configs: dict[str, Any] = Field(default_factory=dict)
 
     @field_validator("port", mode="before")

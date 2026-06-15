@@ -183,6 +183,13 @@
       "title": "Dns",
       "type": "string"
     },
+    "extra_hosts": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Extra Hosts",
+      "type": "object"
+    },
     "extra_compose_configs": {
       "additionalProperties": true,
       "title": "Extra Compose Configs",

@@ -40,5 +40,7 @@ local_access:
   - my-dns-server
   - test-nginx-1
 dns: "host"
+extra_hosts:
+  "www.test.com": "1.1.1.1"
 extra_compose_configs:
   user: "10001:10001"

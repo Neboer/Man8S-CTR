@@ -32,3 +32,6 @@ def test_conf_convert():
     MBContainerConf.to_json_schema_file(
         path.join(current_dir, "resources/mbcontainerconf-schema.json")
     )
+
+if __name__ == "__main__":
+    test_conf_convert()

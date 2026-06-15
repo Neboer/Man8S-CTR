@@ -36,6 +36,7 @@ class MBContainer:
         self.resolved = False  # 是否已经完成了解析引用
         # self.local_access 是额外的本地访问主机名列表，不做校验，直接生成对应ygg地址即可。
         self.local_access = container_conf.local_access
+        self.extra_hosts = container_conf.extra_hosts
         self.dns = MBContainerDNS(container_conf.dns)
         self.extra_compose_configs = container_conf.extra_compose_configs
 
@@ -75,14 +76,16 @@ class MBContainer:
             real_local_access_container_names = list(self.local_access)
             if self.name not in real_local_access_container_names:
                 real_local_access_container_names.append(self.name)
-            extra_hosts = {
+            ygg_extra_hosts = {
                 f"{ct_name}.{mb_config.local_domain}": string_to_v6suffix(
                     self.host_yggdrasil_prefix, ct_name
                 )
                 for ct_name in real_local_access_container_names
             }
         else:
-            extra_hosts = {}
+            ygg_extra_hosts = {}
+        # User-defined extra_hosts override auto-generated Yggdrasil entries on collision
+        extra_hosts = {**ygg_extra_hosts, **self.extra_hosts}
 
         compose_service = ComposeServiceConf(
             image=self.image,
